@@ -1,0 +1,21 @@
+﻿{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:55051",
+      "sslPort": 44372
+    }
+  },
+  "profiles": {
+    "TEMPLATE_APP": {
+      "commandName": "Project",
+      "launchUrl": "swagger",
+      "applicationUrl": "https://localhost:11621;http://localhost:11620",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}

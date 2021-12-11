@@ -1,0 +1,23 @@
+{
+	"name": "Server",
+	"description": "Server description",
+	"repository": "https://github.com/ExtremeDotneting/TEMPLATE_APP.git",
+	"buildpacks": [
+	{
+		"url": "https://github.com/dmathieu/heroku-buildpack-submodules"
+	},
+	{
+		"url": "https://github.com/jincod/dotnetcore-buildpack"
+	}
+	],
+	"env": {
+		"APP_SETTINGS": {
+			"description": "All settings importet through this json",
+			"value": "{}"
+		},
+		"PROJECT_NAME": {
+			"description": "Herokuy variable",
+			"value": "TEMPLATE_APP"
+		}
+	}
+}
