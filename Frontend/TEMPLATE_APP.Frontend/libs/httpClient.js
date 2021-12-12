@@ -1,3 +1,7 @@
+import Helpers from "./helpers";
+import AppSettings from "./appSettings";
+import { Func } from "./typeChecking/importer";
+
 class HttpClient {
   constructor() {
     this.defaultHeaders = {
@@ -6,8 +10,18 @@ class HttpClient {
       'Cache': 'no-cache',
       //'Cookie': "aa=qq"
     };
+
   }
 
+
+  test = Func(["string", "string"], "Promise",
+    async (str1, str2) => {
+      console.log(this);
+      console.log(str1 + str2);
+    })
+
+
+    
   async get(url, headers, disableLogsSerialization) {
     return await this.send("GET", url, null, headers, disableLogsSerialization);
   }
@@ -36,7 +50,7 @@ class HttpClient {
       }
 
       //Send http request
-      var baseResponse = await this._sendXMLHttpRequest(request);
+      baseResponse = await this._sendXMLHttpRequest(request);
 
       responseText = await baseResponse.response;
       try {
@@ -82,7 +96,7 @@ class HttpClient {
   async _sendXMLHttpRequest({ method, url, body, headers }) {
     return new Promise(function (resolve, reject) {
       let xhr = new XMLHttpRequest();
-      xhr.withCredentials=true;
+      xhr.withCredentials = true;
       xhr.open(method, url, true);
       var headerNames = Object.keys(headers);
       for (var i = 0; i < headerNames.length; i++) {
@@ -130,16 +144,16 @@ class HttpClient {
     //Логируем запрос и ответ в виде текста
     if (requestObj != null && AppSettings.HttpClient.SerializeRequest) {
       console.log("Request:")
-      logAsJson(requestObj);
+      Helpers.logAsJson(requestObj);
     }
     if (responseObj != null && !(disableLogsSerialization === true) && AppSettings.HttpClient.SerializeResponse) {
       console.log("Response:")
       if (responseObj)
-        logAsJson(responseObj);
+        Helpers.logAsJson(responseObj);
       else
         responseText
     }
   }
 }
-
-window.httpClient = new HttpClient();
+window["HttpC"] = new HttpClient();
+export default HttpClient;

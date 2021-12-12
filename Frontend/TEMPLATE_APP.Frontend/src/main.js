@@ -1,5 +1,6 @@
 import "../libs/typeChecking/importer.js";
-import * as AppSettingsModule from '../public/appsettings.json';
+import "../libs/httpClient.js";
+import "../libs/appSettings.js";
 import Vue from 'vue';
 import App from '@/App.vue';
 import vuetify from '@/plugins/vuetify';
@@ -7,13 +8,12 @@ import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import '@mdi/font/css/materialdesignicons.css';
 import router from '@/js/router';
 import './main.css';
-import helpers from "@/js/base/helpers";
-import dialogs from "@/js/base/dialogs";
+import helpers from "../libs/helpers.js"
+import dialogs from "@/js/dialogs";
 import tests from "@/js/tests";
 
 function main() {
   try {
-    window["AppSettings"] = AppSettingsModule.default;
     helpers.setZoom(0.7);
 
     //If development.

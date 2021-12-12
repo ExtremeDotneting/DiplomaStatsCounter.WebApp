@@ -1,11 +1,11 @@
 
-var asyncLock = {
-    async asyncLock(func, scopeName) {
+var AsyncLock = {
+    async MakeLock(func, scopeName) {
         var w = window;
         var key = "_asyncLockScope_" + scopeName;
         try {
             var promise = sleep(1);
-            while (isPromise(promise)) {
+            while (IsPromise(promise)) {
                 await promise;
                 var promise = w[key];
             }
@@ -20,8 +20,8 @@ var asyncLock = {
         }
     },
 
-    isPromise(v) {
+    IsPromise(v) {
         return v && typeof v === 'object' && typeof v.then === 'function';
     }
 }
-export default asyncLock;
+export default AsyncLock;

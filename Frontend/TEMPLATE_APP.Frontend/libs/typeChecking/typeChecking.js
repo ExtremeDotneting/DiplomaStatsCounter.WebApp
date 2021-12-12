@@ -1,5 +1,5 @@
 let TypeChecking = {
-    Func(returnTypeName, func) {
+    Func(argumentsTypesArray, returnTypeName, func) {
 
         var nonGenericType = TypeChecking._GetNonGenericTypeFromTypeStr(returnTypeName);
         var genericType = TypeChecking._GetGenericTypeFromTypeStr(returnTypeName);
@@ -7,7 +7,9 @@ let TypeChecking = {
 
         if (nonGenericType == "Promise") {
             var asyncFunc = async function () {
-                var promise = func.apply(null, arguments);
+                var args = TypeChecking._ConvertFuncArguments(arguments, argumentsTypesArray);
+
+                var promise = func.apply(null, args);
                 promise = TypeChecking.AsType(promise, returnTypeName);
 
                 var res = await promise;
@@ -22,7 +24,9 @@ let TypeChecking = {
         }
         else {
             var syncFunc = function () {
-                var res = func.apply(null, arguments);
+                var args = TypeChecking._ConvertFuncArguments(arguments, argumentsTypesArray);
+
+                var res = func.apply(null, args);
                 res = TypeChecking.AsType(res, returnTypeName);
                 return res;
             }
@@ -81,8 +85,11 @@ let TypeChecking = {
 
         //Check if null and nullable
         var isNullable = this.IsNullableType(typeName);
-        if ((obj === undefined || obj === null) && isNullable) {
-            return obj;
+        if ((obj === undefined || obj === null)) {
+            if (isNullable)
+                return obj;
+            else
+                throw "Null value can't be converted to type '" + origTypeName + "'";
         }
         if (isNullable) {
             typeName = typeName.substring(0, typeName.length - 1);
@@ -115,7 +122,7 @@ let TypeChecking = {
             throw "Type '" + origTypeName + "' not recognized.";
         }
         else if (!typeDefinition.Check(obj)) {
-            throw "Object '"+obj+"' can't be casted to type '" + origTypeName + "'.";
+            throw "Object '" + obj + "' can't be casted to type '" + origTypeName + "'.";
         }
 
         if (obj)
@@ -151,6 +158,13 @@ let TypeChecking = {
     },
 
     _registeredTypes: {},
+
+    _ConvertFuncArguments(args, argumentsTypesArray) {
+        for (var i = 0; i < argumentsTypesArray.length; i++) {
+            args[i] = TypeChecking.AsType(args[i], argumentsTypesArray[i]);
+        }
+        return args;
+    },
 
     _IsGenericTypeFromStr(typeName) {
         return typeName.includes("<") && typeName.includes(">");

@@ -1,4 +1,4 @@
-var helpers = {
+var Helpers = {
     setZoom(zoom) {
         var setSizes = function () {
             if (!zoom)
@@ -101,4 +101,4 @@ var helpers = {
 
 }
 
-export default helpers;
+export default Helpers;

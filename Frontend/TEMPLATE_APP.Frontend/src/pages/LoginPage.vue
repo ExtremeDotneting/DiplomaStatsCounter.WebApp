@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import helpers from "../js/base/helpers";
+import helpers from "../../libs/helpers.js"
 
 export default {
   name: "LoginPage",

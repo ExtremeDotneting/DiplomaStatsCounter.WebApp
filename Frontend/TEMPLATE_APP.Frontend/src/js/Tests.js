@@ -1,4 +1,4 @@
-import dialogs from "@/js/base/dialogs";
+import dialogs from "@/js/dialogs";
 import {
     LoginPage
 } from "@/js/router.js";

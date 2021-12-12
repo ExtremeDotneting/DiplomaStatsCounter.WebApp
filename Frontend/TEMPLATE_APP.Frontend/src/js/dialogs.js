@@ -1,10 +1,10 @@
-import DialogForm from "@/components/DialogForm";
+import DialogForm from "../components/DialogForm";
 import Vue from 'vue';
 import vuetify from '@/plugins/vuetify';
 import router from '@/js/router';
-import helpers from "./helpers";
+import helpers from "../../libs/helpers.js"
 
-var dialogs = {
+var Dialogs = {
     showDialog({
         title,
         text,
@@ -89,4 +89,4 @@ var dialogs = {
         return dialog.closePromise;
     }
 }
-export default dialogs;
+export default Dialogs;

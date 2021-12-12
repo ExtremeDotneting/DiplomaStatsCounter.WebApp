@@ -4,8 +4,22 @@ import BaseTypes from "./baseTypes";
 TypeChecking.RegisterTypes(BaseTypes);
 let Types = window.Types;
 window["TypeChecking"] = TypeChecking;
-window["GetType"] = TypeChecking.GetType;
-window["AsType"] = TypeChecking.AsType;
-window["Func"] = TypeChecking.Func;
 
-export default { TypeChecking, Types }
+let GetType = TypeChecking.GetType
+window["GetType"] = GetType;
+
+let AsType = TypeChecking.AsType
+window["AsType"] = AsType;
+
+let Func = TypeChecking.Func
+window["Func"] = Func;
+
+// Object.prototype.GetType = function () {
+//     return TypeChecking.GetType(this);
+// }
+
+// Object.prototype.AsType = function (typeName) {
+//     return TypeChecking.AsType(this, typeName);
+// }
+
+export { TypeChecking, Types, GetType, AsType, Func }
