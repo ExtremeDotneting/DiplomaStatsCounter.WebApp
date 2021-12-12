@@ -17,7 +17,7 @@ function main() {
     helpers.setZoom(0.7);
 
     //If development.
-    if (AppSettings.EnvName === 'Development') {
+    if (window.AppSettings.EnvName === 'Development') {
       window["dialogs"] = dialogs;
       window["tests"] = tests;
       window["helpers"] = helpers;
