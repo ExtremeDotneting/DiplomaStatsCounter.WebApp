@@ -1,11 +1,34 @@
 let TypeChecking = {
     Func(returnTypeName, func) {
-        var resFunc = function () {
-            var res = func();
-            res = TypeChecking.AsType(res, returnTypeName);
-            return res;
+
+        var nonGenericType = TypeChecking._GetNonGenericTypeFromTypeStr(returnTypeName);
+        var genericType = TypeChecking._GetGenericTypeFromTypeStr(returnTypeName);
+        var isGeneric = TypeChecking._IsGenericTypeFromStr(returnTypeName);
+
+        if (nonGenericType == "Promise") {
+            var asyncFunc = async function () {
+                var promise = func.apply(null, arguments);
+                promise = TypeChecking.AsType(promise, returnTypeName);
+
+                var res = await promise;
+                if (isGeneric) {
+                    res = TypeChecking.AsType(res, genericType);
+                } else {
+                    res = TypeChecking.AsType(res, "object?");
+                }
+                return res;
+            }
+            return asyncFunc;
         }
-        return resFunc;
+        else {
+            var syncFunc = function () {
+                var res = func.apply(null, arguments);
+                res = TypeChecking.AsType(res, returnTypeName);
+                return res;
+            }
+            return syncFunc;
+        }
+
     },
 
     RegisterTypes(typeDefinitionsArray) {
@@ -74,7 +97,7 @@ let TypeChecking = {
         }
         else if (typeof (obj) === 'string') {
             obj = new String(obj);
-        }       
+        }
 
         //Search for typeDefinition
         var typeDefinition = null;
@@ -92,7 +115,7 @@ let TypeChecking = {
             throw "Type '" + origTypeName + "' not recognized.";
         }
         else if (!typeDefinition.Check(obj)) {
-            throw "Object can't be casted to type '" + origTypeName + "'.";
+            throw "Object '"+obj+"' can't be casted to type '" + origTypeName + "'.";
         }
 
         if (obj)
@@ -134,6 +157,8 @@ let TypeChecking = {
     },
 
     _GetGenericTypeFromTypeStr(typeName) {
+        if (!this._IsGenericTypeFromStr(typeName))
+            return typeName;
         var type = typeName
             .replace("<", "###")
             .replace(">", "###")
@@ -142,6 +167,8 @@ let TypeChecking = {
     },
 
     _GetNonGenericTypeFromTypeStr(typeName) {
+        if (!this._IsGenericTypeFromStr(typeName))
+            return typeName;
         var type = typeName
             .replace("<", "###")
             .replace(">", "###")
