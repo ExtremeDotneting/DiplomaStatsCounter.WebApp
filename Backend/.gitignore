@@ -30,7 +30,7 @@ _ReSharper*/
 .vs/
 #Nuget packages folder
 packages/
-**/appsettings.*.json
+**/appsettings.Production.json
 
 Src/TEMPLATE_APP.WebApp/FrontApp
 Src/TEMPLATE_APP.Frontend/public/bridgeDotNet
