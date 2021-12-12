@@ -1,9 +1,6 @@
 <template>
   <v-container>
     <p>
-      <router-link to="/characterList">CharacterList</router-link>
-    </p>
-    <p>
       <router-link to="/loginPage">LoginPage</router-link>
     </p>
     <p>

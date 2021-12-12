@@ -13,13 +13,12 @@
 </template>
 
 <script>
-import { router, CharacterList, LoginPage, DialogForm } from "@/js/router.js";
+import { router, LoginPage, DialogForm } from "@/js/router.js";
 
 export default {
   name: "App",
 
   components: {
-    CharacterList,
     LoginPage,
     DialogForm,
   },

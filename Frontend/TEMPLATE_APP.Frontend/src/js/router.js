@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import CharacterList from "@/components/CharacterList";
-import LoginPage from "@/components/LoginPage";
+import LoginPage from "@/pages/LoginPage";
 import AllPagesLinks from "@/components/AllPagesLinks";
 import DialogForm from "@/components/DialogForm";
 
@@ -15,10 +14,6 @@ const routes = [
   {
     path: '/allPagesLinks',
     component: AllPagesLinks
-  },
-  {
-    path: '/characterList',
-    component: CharacterList
   },
   {
     path: '/loginPage',
@@ -40,7 +35,6 @@ router.replace({ path: '', redirect: '/allPagesLinks' });
 
 export {
   router,
-  CharacterList,
   LoginPage,
   AllPagesLinks,
   DialogForm

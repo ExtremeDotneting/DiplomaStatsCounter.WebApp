@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import Helpers from "../js/Helpers";
+import helpers from "../js/base/helpers";
 
 export default {
   name: "LoginPage",
@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     validateEmail(email) {
-      Helpers.validateEmail(email);
+      helpers.validateEmail(email);
     },
     submit() {
       if (this.$refs.form.validate()) {

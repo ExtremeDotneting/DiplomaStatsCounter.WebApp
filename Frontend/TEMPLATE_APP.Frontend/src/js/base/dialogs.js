@@ -2,9 +2,9 @@ import DialogForm from "@/components/DialogForm";
 import Vue from 'vue';
 import vuetify from '@/plugins/vuetify';
 import router from '@/js/router';
-import Helpers from "../js/Helpers";
+import helpers from "./helpers";
 
-var Dialogs = {
+var dialogs = {
     showDialog({
         title,
         text,
@@ -47,7 +47,7 @@ var Dialogs = {
             })
             .$mount();
 
-        var contentId = Helpers.textGen(10);
+        var contentId = helpers.textGen(10);
         dataTemplate.contentRandomId = contentId;
 
         if (typeOfComponentContent) {
@@ -89,4 +89,4 @@ var Dialogs = {
         return dialog.closePromise;
     }
 }
-export default Dialogs;
+export default dialogs;
