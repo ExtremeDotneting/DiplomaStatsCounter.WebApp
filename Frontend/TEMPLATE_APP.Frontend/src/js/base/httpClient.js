@@ -82,6 +82,7 @@ class HttpClient {
   async _sendXMLHttpRequest({ method, url, body, headers }) {
     return new Promise(function (resolve, reject) {
       let xhr = new XMLHttpRequest();
+      xhr.withCredentials=true;
       xhr.open(method, url, true);
       var headerNames = Object.keys(headers);
       for (var i = 0; i < headerNames.length; i++) {
@@ -127,11 +128,11 @@ class HttpClient {
     }
 
     //Логируем запрос и ответ в виде текста
-    if (requestObj != null && Env.SerializeRequest) {
+    if (requestObj != null && AppSettings.HttpClient.SerializeRequest) {
       console.log("Request:")
       logAsJson(requestObj);
     }
-    if (responseObj != null && !(disableLogsSerialization === true) && Env.SerializeResponse) {
+    if (responseObj != null && !(disableLogsSerialization === true) && AppSettings.HttpClient.SerializeResponse) {
       console.log("Response:")
       if (responseObj)
         logAsJson(responseObj);

@@ -1,3 +1,4 @@
+import "../libs/typeChecking/importer.js";
 import * as AppSettingsModule from '../public/appsettings.json';
 import Vue from 'vue';
 import App from '@/App.vue';
@@ -13,7 +14,6 @@ import tests from "@/js/tests";
 function main() {
   try {
     window["AppSettings"] = AppSettingsModule.default;
-
     helpers.setZoom(0.7);
 
     //If development.
