@@ -1,4 +1,10 @@
-let TypeChecking = {
+import Helpers from "../helpers";
+
+class TypeCheckingClass {
+    constructor() {
+        this._registeredTypes = {}
+    }
+
     Func(argumentsTypesArray, returnTypeName, func) {
         if (typeof (returnTypeName) === 'function') {
             func = returnTypeName;
@@ -37,13 +43,13 @@ let TypeChecking = {
             return syncFunc;
         }
 
-    },
+    }
 
     RegisterTypes(typeDefinitionsArray) {
         for (var i = 0; i < typeDefinitionsArray.length; i++) {
             this.RegisterType(typeDefinitionsArray[i]);
         }
-    },
+    }
 
     RegisterType(typeDefinition) {
         if (typeof (typeDefinition.TypeName) === 'string' && typeDefinition.TypeName.length > 0) {
@@ -56,7 +62,7 @@ let TypeChecking = {
         else {
             throw "Can't register type.";
         }
-    },
+    }
 
     IsTypeOf(obj, typeName) {
         var objType = this.GetType(obj);
@@ -82,7 +88,7 @@ let TypeChecking = {
                 return true;
         }
         return false;
-    },
+    }
 
     AsType(obj, typeName) {
         var origTypeName = typeName;
@@ -102,9 +108,6 @@ let TypeChecking = {
         //Wrap structs
         if (typeof (obj) === 'number') {
             obj = new Number(obj);
-        }
-        else if (typeof (obj) === 'boolean') {
-            obj = new Boolean(obj);
         }
         else if (typeof (obj) === 'string') {
             obj = new String(obj);
@@ -129,10 +132,10 @@ let TypeChecking = {
             throw "Object '" + obj + "' can't be casted to type '" + origTypeName + "'.";
         }
 
-        if (obj)
+        if (obj && typeof (obj) !== 'boolean')
             obj.TypeName = typeName;
         return obj;
-    },
+    }
 
     GetType(obj) {
         try {
@@ -151,28 +154,26 @@ let TypeChecking = {
         catch (ex) {
             return "object?";
         }
-    },
+    }
 
     IsNullable(obj) {
         this.IsNullableType(this.GetType(obj));
-    },
+    }
 
     IsNullableType(typeName) {
         return typeName === 'undefined' || typeName[typeName.length - 1] == '?';
-    },
-
-    _registeredTypes: {},
+    }
 
     _ConvertFuncArguments(args, argumentsTypesArray) {
         for (var i = 0; i < argumentsTypesArray.length; i++) {
             args[i] = TypeChecking.AsType(args[i], argumentsTypesArray[i]);
         }
         return args;
-    },
+    }
 
     _IsGenericTypeFromStr(typeName) {
         return typeName.includes("<") && typeName.includes(">");
-    },
+    }
 
     _GetGenericTypeFromTypeStr(typeName) {
         if (!this._IsGenericTypeFromStr(typeName))
@@ -182,7 +183,7 @@ let TypeChecking = {
             .replace(">", "###")
             .split("###")[1];
         return type;
-    },
+    }
 
     _GetNonGenericTypeFromTypeStr(typeName) {
         if (!this._IsGenericTypeFromStr(typeName))
@@ -192,15 +193,15 @@ let TypeChecking = {
             .replace(">", "###")
             .split("###")[0];
         return type;
-    },
+    }
 
     _isArray(value) {
         return Object.prototype.toString.call(value) === '[object Array]'
-    },
+    }
 
     _isPromise(value) {
         return (value + "") === "[object Promise]";
-    },
+    }
 
     _isString(value) {
         if (typeof (value) === 'string')
@@ -208,13 +209,13 @@ let TypeChecking = {
         if (value["charCodeAt"])
             return true;
         return false;
-    },
+    }
 
     _isBoolean(value) {
         if (this._isString(value))
             return false;
         return (value + "") === "true" || (value + "") === "false";
-    },
+    }
 
     _isNumber(value) {
         if (this._isBoolean(value))
@@ -227,4 +228,7 @@ let TypeChecking = {
     }
 
 }
+
+var TypeChecking = Helpers.getSingletoneOf(TypeCheckingClass, "TypeCheckingClass");
+
 export default TypeChecking;

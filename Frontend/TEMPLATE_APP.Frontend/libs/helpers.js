@@ -1,4 +1,14 @@
 var Helpers = {
+    getSingletoneOf(ClassDefinition, className) {
+        var key = "SingletoneOfType_" + className;
+        if (!window[key]) {
+            window[key] = new ClassDefinition();
+            console.log(className + " created.");
+        }        
+        console.log(className + " resolved.");
+        return window[key];
+    },
+
     setZoom(zoom) {
         var setSizes = function () {
             if (!zoom)

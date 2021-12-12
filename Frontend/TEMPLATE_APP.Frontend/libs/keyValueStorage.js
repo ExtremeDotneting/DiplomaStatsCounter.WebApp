@@ -1,39 +1,41 @@
 import { Func } from "./typeChecking/importer"
+import Helpers from "./helpers";
 
-let KeyValueStorage = {
+class KeyValueStorageClass {
 
-    set: Func(["string", "object"],
+    set = Func(["string", "object"],
         (key, value) => {
             var json = JSON.stringify(value);
             localStorage.setItem(key, json);
-        }),
+        })
 
-    containsKey: Func(["string"], "boolean",
+    containsKey = Func(["string"], "boolean",
         (key) => {
-            return localStorage.getItem(key) == null;
-        }),
+            return localStorage.getItem(key) != null;
+        })
 
-    tryGet: Func(["string"], "object?",
+    tryGet = Func(["string"], "object?",
         (key) => {
             if (!this.containsKey(key))
                 return null;
             var json = localStorage.getItem(key);
             return JSON.parse(json);
-        }),
+        })
 
-    get: Func(["string"], "object?",
+    get = Func(["string"], "object?",
         (key) => {
-            if (!this.containsKey(key))
+            if (!this.containsKey(key)){
                 throw "Not contains key '" + key + "'.";
+            }
             var json = localStorage.getItem(key);
             return JSON.parse(json);
-        }),
+        })
 
-    remove: Func(["string"],
+    remove = Func(["string"],
         (key) => {
             localStorage.removeItem(key);
-        }),
-
-
+        })
 }
+
+var KeyValueStorage = Helpers.getSingletoneOf(KeyValueStorageClass, "KeyValueStorageClass");
 export default KeyValueStorage;
