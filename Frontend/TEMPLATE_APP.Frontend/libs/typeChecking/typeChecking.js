@@ -28,7 +28,6 @@ let TypeChecking = {
     },
 
     IsTypeOf(obj, typeName) {
-        var origTypeName = typeName;
         var objType = this.GetType(obj);
 
         //Check if value null and type is nullable
@@ -41,38 +40,32 @@ let TypeChecking = {
         }
 
         //Check if TypeName match.
-        if (objType === typeName)
-            return true;
-        var isGeneric = this.IsGenericType(objType);
-        console.log(objType)
-        var nonGenericType = null;
+        var isGeneric = this._IsGenericTypeFromStr(objType);
         if (isGeneric) {
-            nonGenericType = this.GetNonGenericType(obj);
+            var nonGenericType = this._GetGenericTypeFromTypeStr(objType);
             if (nonGenericType === typeName)
                 return true;
         }
-
-        //Check by typeDefinition
-        var typeDefinition = null;
-        if (isGeneric) {
-            typeDefinition = this._registeredTypes[nonGenericType];
-            console.log(nonGenericType)
-        }
-        else{
-            typeDefinition = this._registeredTypes[typeName];  
-            console.log("@"+typeName)
-        }
-
-        if (typeDefinition) {
-            return typeDefinition.Check(obj);
-        }
         else {
-            console.warn("TypeChecking.IsTypeOf exception, type '" + origTypeName + "' not recognized.");
-            return false;
+            if (objType === typeName)
+                return true;
         }
+        return false;
     },
 
     AsType(obj, typeName) {
+        var origTypeName = typeName;
+
+        //Check if null and nullable
+        var isNullable = this.IsNullableType(typeName);
+        if ((obj === undefined || obj === null) && isNullable) {
+            return obj;
+        }
+        if (isNullable) {
+            typeName = typeName.substring(0, typeName.length - 1);
+        }
+
+        //Wrap structs
         if (typeof (obj) === 'number') {
             obj = new Number(obj);
         }
@@ -81,11 +74,27 @@ let TypeChecking = {
         }
         else if (typeof (obj) === 'string') {
             obj = new String(obj);
+        }       
+
+        //Search for typeDefinition
+        var typeDefinition = null;
+        var isGeneric = this._IsGenericTypeFromStr(typeName);
+        if (isGeneric) {
+            var nonGenericType = this._GetNonGenericTypeFromTypeStr(typeName);
+            typeDefinition = this._registeredTypes[nonGenericType];
+        }
+        else {
+            typeDefinition = this._registeredTypes[typeName];
         }
 
-        if (!this.IsTypeOf(obj, typeName)) {
-            throw "Object can't be casted to type '" + typeName + "'.";
+        //Validate by type definition
+        if (!typeDefinition) {
+            throw "Type '" + origTypeName + "' not recognized.";
         }
+        else if (!typeDefinition.Check(obj)) {
+            throw "Object can't be casted to type '" + origTypeName + "'.";
+        }
+
         if (obj)
             obj.TypeName = typeName;
         return obj;
@@ -110,36 +119,8 @@ let TypeChecking = {
         }
     },
 
-    GetGenericType(obj) {
-        var typeName = this.GetType(obj);
-        if (!this.IsGenericType(typeName)) {
-            throw "Can use this only for generic types";
-        }
-        var type = typeName
-            .replace("<", "###")
-            .replace(">", "###")
-            .split("###")[1];
-        return type;
-    },
-
-    GetNonGenericType(obj) {
-        var typeName = this.GetType(obj);
-        if (!this.IsGenericType(typeName)) {
-            throw "Can use this only for generic types";
-        }
-        var type = typeName
-            .replace("<", "###")
-            .replace(">", "###")
-            .split("###")[0];
-        return type;
-    },
-
     IsNullable(obj) {
         this.IsNullableType(this.GetType(obj));
-    },
-
-    IsGenericType(typeName) {
-        return typeName.includes("<") && typeName.includes(">");
     },
 
     IsNullableType(typeName) {
@@ -147,6 +128,26 @@ let TypeChecking = {
     },
 
     _registeredTypes: {},
+
+    _IsGenericTypeFromStr(typeName) {
+        return typeName.includes("<") && typeName.includes(">");
+    },
+
+    _GetGenericTypeFromTypeStr(typeName) {
+        var type = typeName
+            .replace("<", "###")
+            .replace(">", "###")
+            .split("###")[1];
+        return type;
+    },
+
+    _GetNonGenericTypeFromTypeStr(typeName) {
+        var type = typeName
+            .replace("<", "###")
+            .replace(">", "###")
+            .split("###")[0];
+        return type;
+    },
 
     _isPromise(value) {
         return (value + "") === "[object Promise]";
