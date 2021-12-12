@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IRO.Storage;
 using Microsoft.Extensions.Logging;
 using Octokit;
 using TEMPLATE_APP.WebApp.Controllers;
@@ -12,10 +13,12 @@ namespace TEMPLATE_APP.WebApp.Services
     public class GithubStatsCounterService
     {
         readonly ILogger _logger;
+        readonly IKeyValueStorage _storage;
 
-        public GithubStatsCounterService(ILogger<GithubStatsCounterService> logger)
+        public GithubStatsCounterService(ILogger<GithubStatsCounterService> logger, IKeyValueStorage storage)
         {
             _logger = logger;
+            _storage = storage;
         }
 
         public async Task<IEnumerable<RepositoryShortInfo>> GetMyRepositories(GitHubClient client)
@@ -48,7 +51,7 @@ namespace TEMPLATE_APP.WebApp.Services
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("Error fetching orgs info.", ex);
             }
@@ -57,6 +60,27 @@ namespace TEMPLATE_APP.WebApp.Services
         }
 
         public async Task<RepositoryDetailedInfo> GetRepositoryInfo(GitHubClient client, long repositoryId)
+        {
+            var key = $"repoDetailedInfo_{repositoryId}";
+            var detailedInfo=await _storage.GetOrDefault<RepositoryDetailedInfo>(key);
+            if (detailedInfo == null)
+            {
+                detailedInfo = await PrivateGetRepositoryInfo(client,repositoryId);
+                await _storage.Set(key, detailedInfo);
+                return detailedInfo;
+            }
+            else
+            {
+                var t = Task.Run(async () =>
+                {
+                    var newDetailedInfo = await PrivateGetRepositoryInfo(client, repositoryId);
+                    await _storage.Set(key, newDetailedInfo);
+                });
+                return detailedInfo;
+            }
+        }
+
+        async Task<RepositoryDetailedInfo> PrivateGetRepositoryInfo(GitHubClient client, long repositoryId)
         {
             var repo = await client.Repository.Get(repositoryId);
 
@@ -82,49 +106,23 @@ namespace TEMPLATE_APP.WebApp.Services
             var pullRequests = await client.PullRequest.GetAllForRepository(repositoryId);
             detailedInfo.PullRequestsCount = pullRequests.Count;
 
-            var participation = await client.Repository.Statistics.GetParticipation(repositoryId);
-            detailedInfo.TotalCommits = participation.TotalCommits();
-
-
-
-            var dict = new Dictionary<int, DayStatistics>();
-            var commitActivity = await client.Repository.Statistics.GetCommitActivity(repositoryId);
-            foreach (var week in commitActivity.Activity)
-            {
-                for (int i = 0; i < week.Days.Count; i++)
-                {
-                    var item = GetItem(dict, week.WeekTimestamp.UtcDateTime, i);
-                    item.CommitsCount = week.Days[i];
-                }
-            }
-
+            var dict = new Dictionary<int, WeekStatistics>();
             var codeFrequency = await client.Repository.Statistics.GetCodeFrequency(repositoryId);
             foreach (var week in codeFrequency.AdditionsAndDeletionsByWeek)
             {
-                var additionsDaily = week.Additions / 7;
-                var deletionsDaily = week.Deletions / 7;
-                var newLinesDaily = (week.Additions + week.Deletions) / 7;
+                var item = GetItem(dict, week.Timestamp.UtcDateTime);
+                item.AdditionsLinesCount = week.Additions;
+                item.DeletionsLinesCount = week.Deletions;
+                item.NewLinesCount = week.Additions + week.Deletions;
 
-                for (int i = 0; i < 7; i++)
-                {
-                    var item = GetItem(dict, week.Timestamp.UtcDateTime, i);
-                    item.AdditionsLinesCount = additionsDaily;
-                    item.DeletionsLinesCount = deletionsDaily;
-                    item.NewLinesCount = newLinesDaily;
-                }
+                await FillCommitStatsForWeek(client, repositoryId, item);
             }
 
             var sortedStats = dict
                 .Select(r => r.Value)
                 .Where(r => r.CommitsCount != 0 || r.NewLinesCount != 0)
-                .OrderBy(r => r.DayNumber)
+                .OrderBy(r => r.WeekNumber)
                 .ToList();
-
-            var estimatedCommitsPerDay = (int)detailedInfo.TotalCommits / participation.All.Count / 7;
-            if (estimatedCommitsPerDay <= 0)
-            {
-                estimatedCommitsPerDay = 1;
-            }
 
             var totalLines = 0;
             var totalCommits = 0;
@@ -132,31 +130,59 @@ namespace TEMPLATE_APP.WebApp.Services
             {
                 totalLines += item.NewLinesCount;
                 item.TotalLinesCount = totalLines;
-                if (item.CommitsCount <= 0)
-                {
-                    item.CommitsCount = estimatedCommitsPerDay;
-                }
-
                 totalCommits += item.CommitsCount;
                 item.TotalCommitsCount = totalCommits;
             }
+            detailedInfo.WeekCommitStats = sortedStats;
+            detailedInfo.TotalCommits = sortedStats.Last().TotalCommitsCount;
 
-            detailedInfo.DayCommitStats = sortedStats;
             return detailedInfo;
         }
 
-        DayStatistics GetItem(Dictionary<int, DayStatistics> dict, DateTime weekDate, int dayNumber)
+        async Task FillCommitStatsForWeek(GitHubClient client, long repositoryId, WeekStatistics item)
         {
-            var key = (int)(weekDate - DateTime.MinValue).TotalDays + dayNumber;
+            var until = item.WeekDate + TimeSpan.FromMinutes(7 * 24 * 60 - 5);
+            var cacheKey = "commitsByDate__" + (until - DateTime.MinValue).Days.ToString();
+            IEnumerable<GithubCommitInfo> commitsInfo = await _storage.GetOrDefault<IEnumerable<GithubCommitInfo>>(cacheKey);
+            if (commitsInfo == null)
+            {
+                var gitHubCommits = await client.Repository.Commit.GetAll(repositoryId, new CommitRequest()
+                {
+                    Since = item.WeekDate,
+                    Until = until
+                });
+                commitsInfo = gitHubCommits
+                    .Select(r => new GithubCommitInfo(r));
+                await _storage.Set(cacheKey, commitsInfo);
+            }
+
+            var uniqUsers = new HashSet<int>();
+            var authorsCount = 0;
+            foreach (var commit in commitsInfo)
+            {
+                //var commit = await client.Repository.Commit.Get(repositoryId, commitNotFull.Ref);
+                if (!uniqUsers.Contains(commit.AuthorId))
+                {
+                    authorsCount++;
+                    uniqUsers.Add(commit.AuthorId);
+                }
+            }
+            item.AuthorsCount = authorsCount;
+            item.CommitsCount = commitsInfo.Count();
+        }
+
+        WeekStatistics GetItem(Dictionary<int, WeekStatistics> dict, DateTime weekDate)
+        {
+            var key = (int)(weekDate - DateTime.MinValue).TotalDays;
             if (dict.TryGetValue(key, out var value))
             {
                 return value;
             }
             else
             {
-                var newItem = new DayStatistics();
-                newItem.DayNumber = key;
-                newItem.DayDate = weekDate.AddDays(dayNumber);
+                var newItem = new WeekStatistics();
+                newItem.WeekNumber = key;
+                newItem.WeekDate = weekDate;
                 dict[key] = newItem;
                 return newItem;
             }

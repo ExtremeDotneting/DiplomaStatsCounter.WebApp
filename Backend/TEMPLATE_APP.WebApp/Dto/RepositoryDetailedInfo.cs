@@ -38,8 +38,8 @@ namespace TEMPLATE_APP.WebApp.Dto
 
         public int TotalCommits { get; set; }
 
-        [JsonProperty(Order = 1)]
-        public List<DayStatistics> DayCommitStats { get; set; }
+        [JsonProperty(Order = 1)] 
+        public List<WeekStatistics> WeekCommitStats { get; set; }
 
     }
 }

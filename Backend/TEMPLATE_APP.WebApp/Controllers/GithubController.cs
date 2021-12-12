@@ -34,6 +34,24 @@ namespace TEMPLATE_APP.WebApp.Controllers
             _statsService = statsService;
         }
 
+        [HttpGet("getRepositoryByUrl")]
+        public async Task<RepositoryShortInfo> GetRepositoryByUrl([FromQuery]string url)
+        {
+            url = url
+                .Replace("https://github.com/", "")
+                .Replace("http://github.com/", "");
+            var owner = url.Split("/")[0];
+            var name = url.Split("/")[1];
+            var client = await ResolveMyClient();
+            var repo=await client.Repository.Get(owner, name);
+            var shortInfo = new RepositoryShortInfo()
+            {
+                Id = repo.Id,
+                Name = repo.Name
+            };
+            return shortInfo;
+        }
+        
         [HttpGet("getMe")]
         public async Task<Octokit.User> GetMe()
         {

@@ -2,11 +2,11 @@
 
 namespace TEMPLATE_APP.WebApp.Dto
 {
-    public class DayStatistics
+    public class WeekStatistics
     {
-        public int DayNumber { get; set; }
+        public int WeekNumber { get; set; }
 
-        public DateTime DayDate { get; set; }
+        public DateTime WeekDate { get; set; }
 
         public int CommitsCount { get; set; }
 
@@ -19,5 +19,7 @@ namespace TEMPLATE_APP.WebApp.Dto
         public int TotalLinesCount { get; set; }
 
         public int TotalCommitsCount { get; set; }
+
+        public int AuthorsCount { get; set; }
     }
 }
