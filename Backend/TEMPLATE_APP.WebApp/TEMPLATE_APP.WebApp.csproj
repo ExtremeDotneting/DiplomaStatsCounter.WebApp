@@ -14,8 +14,12 @@
     </Content>
   </ItemGroup>
 
+
   <ItemGroup>
-    <Folder Include="Options\" />
+    <Compile Remove="Options\**" />
+    <Content Remove="Options\**" />
+    <EmbeddedResource Remove="Options\**" />
+    <None Remove="Options\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using TEMPLATE_APP.WebApp.Services;
 
 namespace TEMPLATE_APP
 {
@@ -66,6 +67,8 @@ namespace TEMPLATE_APP
 
             services.AddMyAuth();
             #endregion
+
+            services.AddSingleton<GithubStatsCounterService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
