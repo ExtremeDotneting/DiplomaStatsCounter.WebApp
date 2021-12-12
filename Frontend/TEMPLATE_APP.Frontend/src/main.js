@@ -1,6 +1,7 @@
 import "../libs/typeChecking/importer.js";
 import "../libs/httpClient.js";
 import "../libs/appSettings.js";
+import KeyValueStorage from "../libs/keyValueStorage.js";
 import Vue from 'vue';
 import App from '@/App.vue';
 import vuetify from '@/plugins/vuetify';
@@ -18,6 +19,7 @@ function main() {
 
     //If development.
     if (window.AppSettings.EnvName === 'Development') {
+      window["KeyValueStorage"]=KeyValueStorage;
       window["dialogs"] = dialogs;
       window["tests"] = tests;
       window["helpers"] = helpers;

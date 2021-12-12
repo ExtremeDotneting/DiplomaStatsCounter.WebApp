@@ -2,13 +2,17 @@ import TypeChecking from "./typeChecking.js"
 
 let BaseTypes = [
     {
+        TypeName: "Array",
+        Check: (value) => TypeChecking._isArray(value)
+    },
+    {
         TypeName: "Promise",
         Check: (value) => TypeChecking._isPromise(value)
     },
     {
         TypeName: "object",
         Check: (value) => {
-            if(value===null || value===undefined){
+            if (value === null || value === undefined) {
                 return false;
             }
             return true;

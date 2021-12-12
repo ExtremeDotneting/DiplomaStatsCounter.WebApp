@@ -13,22 +13,15 @@ class HttpClient {
 
   }
 
-
-  test = Func(["string", "string"], "Promise",
-    async (str1, str2) => {
-      console.log(this);
-      console.log(str1 + str2);
+  get = Func(["string", "object?", "boolean"], "Promise<object?>",
+    async (url, headers, disableLogsSerialization) => {
+      return await this.send("GET", url, null, headers, disableLogsSerialization);
     })
 
-
-    
-  async get(url, headers, disableLogsSerialization) {
-    return await this.send("GET", url, null, headers, disableLogsSerialization);
-  }
-
-  async post(url, requestObj, headers, disableLogsSerialization) {
-    return await this.send("POST", url, requestObj, headers, disableLogsSerialization);
-  }
+  post = Func(["string", "object?", "object?", "boolean"], "Promise<object?>",
+    async (url, requestObj, headers, disableLogsSerialization) => {
+      return await this.send("POST", url, requestObj, headers, disableLogsSerialization);
+    })
 
   async send(method, url, requestObj, headers, disableLogsSerialization) {
     var baseResponse = null;
@@ -155,5 +148,5 @@ class HttpClient {
     }
   }
 }
-window["HttpC"] = new HttpClient();
+
 export default HttpClient;

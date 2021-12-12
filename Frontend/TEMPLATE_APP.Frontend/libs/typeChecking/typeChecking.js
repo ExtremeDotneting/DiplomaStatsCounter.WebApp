@@ -1,5 +1,9 @@
 let TypeChecking = {
     Func(argumentsTypesArray, returnTypeName, func) {
+        if (typeof (returnTypeName) === 'function') {
+            func = returnTypeName;
+            returnTypeName = "undefined";
+        }
 
         var nonGenericType = TypeChecking._GetNonGenericTypeFromTypeStr(returnTypeName);
         var genericType = TypeChecking._GetGenericTypeFromTypeStr(returnTypeName);
@@ -89,7 +93,7 @@ let TypeChecking = {
             if (isNullable)
                 return obj;
             else
-                throw "Null value can't be converted to type '" + origTypeName + "'";
+                throw "Object '" + obj + "' value can't be converted to type '" + origTypeName + "'";
         }
         if (isNullable) {
             typeName = typeName.substring(0, typeName.length - 1);
@@ -119,7 +123,7 @@ let TypeChecking = {
 
         //Validate by type definition
         if (!typeDefinition) {
-            throw "Type '" + origTypeName + "' not recognized.";
+            //throw "Type '" + origTypeName + "' not recognized.";
         }
         else if (!typeDefinition.Check(obj)) {
             throw "Object '" + obj + "' can't be casted to type '" + origTypeName + "'.";
@@ -154,7 +158,7 @@ let TypeChecking = {
     },
 
     IsNullableType(typeName) {
-        return typeName[typeName.length - 1] == '?';
+        return typeName === 'undefined' || typeName[typeName.length - 1] == '?';
     },
 
     _registeredTypes: {},
@@ -188,6 +192,10 @@ let TypeChecking = {
             .replace(">", "###")
             .split("###")[0];
         return type;
+    },
+
+    _isArray(value) {
+        return Object.prototype.toString.call(value) === '[object Array]'
     },
 
     _isPromise(value) {
