@@ -1,4 +1,4 @@
-import "../libs/appSettingsImporter"
+import "../libs/appSettingsImporter.js";
 import "../libs/typeChecking/importer.js";
 import "../libs/http/httpClientSingleton";
 import KeyValueStorage from "../libs/keyValueStorage.js";

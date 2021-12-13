@@ -1,4 +1,5 @@
-let AppSettings = {
+window["_appSettings"] =
+{
     "EnvName": "Development",
     "ApiUrl": "https://localhost:11621",
     "HttpClient": {
@@ -6,5 +7,3 @@ let AppSettings = {
         "SerializeResponse": true
     }
 }
-
-window["AppSettings"] = AppSettings;

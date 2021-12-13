@@ -1,5 +1,5 @@
 import Helpers from "../helpers";
-import AppSettings from "../appSettingsImporter";
+import AppSettings from "../../libs/appSettingsImporter";
 import { Func } from "../typeChecking/importer";
 
 class HttpClientClass {

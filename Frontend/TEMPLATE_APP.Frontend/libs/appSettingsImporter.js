@@ -1,3 +1,6 @@
-//Crunch. See index.html and appsettings.js
-let AppSettings = window["AppSettings"];
+
+var AppSettings = window["_appSettings"];
+window["AppSettings"] = AppSettings;
+window["_appSettings"] = null;
+
 export default AppSettings;
