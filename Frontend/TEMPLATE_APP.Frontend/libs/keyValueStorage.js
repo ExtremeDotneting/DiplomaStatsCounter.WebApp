@@ -1,5 +1,4 @@
 import { Func } from "./typeChecking/importer"
-import Helpers from "./helpers";
 
 class KeyValueStorageClass {
 
@@ -37,5 +36,5 @@ class KeyValueStorageClass {
         })
 }
 
-var KeyValueStorage = Helpers.getSingletoneOf(KeyValueStorageClass, "KeyValueStorageClass");
+var KeyValueStorage = new KeyValueStorageClass();
 export default KeyValueStorage;

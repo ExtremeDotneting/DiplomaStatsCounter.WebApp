@@ -229,6 +229,6 @@ class TypeCheckingClass {
 
 }
 
-var TypeChecking = Helpers.getSingletoneOf(TypeCheckingClass, "TypeCheckingClass");
+var TypeChecking = new TypeCheckingClass();
 
 export default TypeChecking;
