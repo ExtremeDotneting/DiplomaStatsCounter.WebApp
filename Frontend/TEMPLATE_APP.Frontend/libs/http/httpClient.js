@@ -1,8 +1,8 @@
-import Helpers from "./helpers";
-import AppSettings from "./appSettings";
-import { Func } from "./typeChecking/importer";
+import Helpers from "../helpers";
+import AppSettings from "../appSettings";
+import { Func } from "../typeChecking/importer";
 
-class HttpClient {
+class HttpClientClass {
   constructor() {
     this.defaultHeaders = {
       'Accept': 'texthtml,applicationxhtml+xml,applicationxml;q=0.9,imagewebp,imageapng,;q=0.8,applicationsigned-exchange;v=b3;q=0.9',
@@ -13,12 +13,12 @@ class HttpClient {
 
   }
 
-  get = Func(["string", "object?", "boolean"], "Promise<object?>",
+  get = Func(["string", "object?", "boolean?"], "Promise<object?>",
     async (url, headers, disableLogsSerialization) => {
       return await this.send("GET", url, null, headers, disableLogsSerialization);
     })
 
-  post = Func(["string", "object?", "object?", "boolean"], "Promise<object?>",
+  post = Func(["string", "object?", "object?", "boolean?"], "Promise<object?>",
     async (url, requestObj, headers, disableLogsSerialization) => {
       return await this.send("POST", url, requestObj, headers, disableLogsSerialization);
     })
@@ -149,4 +149,4 @@ class HttpClient {
   }
 }
 
-export default HttpClient;
+export default HttpClientClass;

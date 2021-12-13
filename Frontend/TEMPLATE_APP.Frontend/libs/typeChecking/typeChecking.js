@@ -1,5 +1,3 @@
-import Helpers from "../helpers";
-
 class TypeCheckingClass {
     constructor() {
         this._registeredTypes = {}
