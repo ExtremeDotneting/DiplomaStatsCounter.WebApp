@@ -1,5 +1,7 @@
-import AppSettings from '../libs/appSettingsImporter.js';
+import AppConfigs from "../libs/appConfigsImport/configsImporter"
 
-var appModule = require("./appStart." + AppSettings.EnvName + ".js");
+console.log("EnvName = " + AppConfigs.EnvName);
+
+var appModule = require("./appStart." + AppConfigs.EnvName + ".js");
 
 export default appModule;

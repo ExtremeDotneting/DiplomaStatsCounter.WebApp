@@ -1,5 +1,5 @@
 import Helpers from "../helpers";
-import AppSettings from "../../libs/appSettingsImporter";
+import AppConfigs from "../appConfigsImport/configsImporter"
 import { Func } from "../typeChecking/importer";
 
 class HttpClientClass {
@@ -135,11 +135,11 @@ class HttpClientClass {
     }
 
     //Логируем запрос и ответ в виде текста
-    if (requestObj != null && AppSettings.HttpClient.SerializeRequest) {
+    if (requestObj != null && AppConfigs.HttpClient.SerializeRequest) {
       console.log("Request:")
       Helpers.logAsJson(requestObj);
     }
-    if (responseObj != null && !(disableLogsSerialization === true) && AppSettings.HttpClient.SerializeResponse) {
+    if (responseObj != null && !(disableLogsSerialization === true) && AppConfigs.HttpClient.SerializeResponse) {
       console.log("Response:")
       if (responseObj)
         Helpers.logAsJson(responseObj);
