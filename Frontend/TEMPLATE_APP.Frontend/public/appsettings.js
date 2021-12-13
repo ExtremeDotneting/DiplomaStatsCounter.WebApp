@@ -1,9 +1,10 @@
-{
+let AppSettings = {
     "EnvName": "Development",
-    "SettingsPath":"/appsettings.json",
     "ApiUrl": "https://localhost:11621",
     "HttpClient": {
         "SerializeRequest": true,
         "SerializeResponse": true
     }
 }
+
+window["AppSettings"] = AppSettings;

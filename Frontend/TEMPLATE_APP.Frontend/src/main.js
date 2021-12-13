@@ -1,6 +1,6 @@
+import "../libs/appSettingsImporter"
 import "../libs/typeChecking/importer.js";
 import "../libs/http/httpClientSingleton";
-import "../libs/appSettings.js";
 import KeyValueStorage from "../libs/keyValueStorage.js";
 import Vue from 'vue';
 import App from '@/App.vue';
