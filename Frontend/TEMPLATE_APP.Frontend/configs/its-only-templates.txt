@@ -1,0 +1,3 @@
+Copy file content to @public/appsettings.js to use.
+
+NOTE: AppSettings loaded dynamicly from server, but environment choosed when build.
