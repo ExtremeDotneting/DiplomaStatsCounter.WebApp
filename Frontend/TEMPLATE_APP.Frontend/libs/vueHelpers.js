@@ -1,4 +1,4 @@
-import Exception from "./exceptionProcessing/exceptions";
+import { Exception } from "./exceptionProcessing/exceptions";
 import Helpers from "./helpers";
 
 class VueHelpersClass {

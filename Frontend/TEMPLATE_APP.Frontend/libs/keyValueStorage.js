@@ -1,38 +1,42 @@
-import { Func } from "./typeChecking/importer"
+import BaseTypes from "./typeChecking/baseTypes";
 
 class KeyValueStorageClass {
 
     set = ((key, value) => {
         var json = JSON.stringify(value);
         localStorage.setItem(key, json);
-    }).Args("string", "object")
+    })
+        .Args("string", BaseTypes.Object)
 
-    containsKey = Func(["string"], "boolean",
-        (key) => {
-            return localStorage.getItem(key) != null;
-        })
+    containsKey = ((key) => {
+        return localStorage.getItem(key) != null;
+    })
+        .Args("string")
+        .Returns("boolean")
 
-    tryGet = Func(["string"], "object?",
-        (key) => {
-            if (!this.containsKey(key))
-                return null;
-            var json = localStorage.getItem(key);
-            return JSON.parse(json);
-        })
+    tryGet = ((key) => {
+        if (!this.containsKey(key))
+            return null;
+        var json = localStorage.getItem(key);
+        return JSON.parse(json);
+    })
+        .Args("string")
+        .Returns("object?")
 
-    get = Func(["string"], "object?",
-        (key) => {
-            if (!this.containsKey(key)) {
-                throw "Not contains key '" + key + "'.";
-            }
-            var json = localStorage.getItem(key);
-            return JSON.parse(json);
-        })
+    get = ((key) => {
+        if (!this.containsKey(key)) {
+            throw "Not contains key '" + key + "'.";
+        }
+        var json = localStorage.getItem(key);
+        return JSON.parse(json);
+    })
+        .Args("string")
+        .Returns("object")
 
-    remove = Func(["string"],
-        (key) => {
-            localStorage.removeItem(key);
-        })
+    remove = ((key) => {
+        localStorage.removeItem(key);
+    })
+        .Args("string")
 }
 
 var KeyValueStorage = new KeyValueStorageClass();

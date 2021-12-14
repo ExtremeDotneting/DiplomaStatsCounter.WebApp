@@ -1,6 +1,5 @@
 import Helpers from "../helpers";
 import AppConfigs from "../appConfigsImport/configsImporter";
-import { Func } from "../typeChecking/importer";
 
 class HttpClientClass {
   withCredentials = false
@@ -15,25 +14,29 @@ class HttpClientClass {
   constructor() {
   }
 
-  get = Func(["string", "object?", "boolean?"], "Promise<object?>",
-    async (url, headers, disableLogsSerialization) => {
-      return await this.send("GET", url, null, headers, disableLogsSerialization);
-    })
+  get = (async (url, headers, disableLogsSerialization) => {
+    return await this.send("GET", url, null, headers, disableLogsSerialization);
+  })
+    .Args("string", "object?", "boolean?")
+    .Returns("Promise<object?>")
 
-  post = Func(["string", "object?", "object?", "boolean?"], "Promise<object?>",
-    async (url, requestObj, headers, disableLogsSerialization) => {
-      return await this.send("POST", url, requestObj, headers, disableLogsSerialization);
-    })
+  post = (async (url, requestObj, headers, disableLogsSerialization) => {
+    return await this.send("POST", url, requestObj, headers, disableLogsSerialization);
+  })
+    .Args("string", "object?", "object?", "boolean?")
+    .Returns("Promise<object?>")
 
-  put = Func(["string", "object?", "object?", "boolean?"], "Promise<object?>",
-    async (url, requestObj, headers, disableLogsSerialization) => {
-      return await this.send("PUT", url, requestObj, headers, disableLogsSerialization);
-    })
+  put = (async (url, requestObj, headers, disableLogsSerialization) => {
+    return await this.send("PUT", url, requestObj, headers, disableLogsSerialization);
+  })
+    .Args("string", "object?", "object?", "boolean?")
+    .Returns("Promise<object?>")
 
-  delete = Func(["string", "object?", "object?", "boolean?"], "Promise<object?>",
-    async (url, requestObj, headers, disableLogsSerialization) => {
-      return await this.send("DELETE", url, requestObj, headers, disableLogsSerialization);
-    })
+  delete = (async (url, requestObj, headers, disableLogsSerialization) => {
+    return await this.send("DELETE", url, requestObj, headers, disableLogsSerialization);
+  })
+    .Args("string", "object?", "object?", "boolean?")
+    .Returns("Promise<object?>")
 
   async send(method, url, requestObj, headers, disableLogsSerialization) {
     var baseResponse = null;
@@ -132,11 +135,10 @@ class HttpClientClass {
     });
   }
 
-  _processResponse = Func(["XMLHttpRequest", "object?"], "Promise",
-    //eslint-disable-next-line
-    async (xhr, responseObj) => {
-      //Use this to override processing response.
-    })
+  //eslint-disable-next-line
+  async _processResponse(xhr, responseObj) {
+    //Use this to override processing response.
+  }
 
   _writeLogs(method, url, requestObj, baseResponse, responseText, responseObj, disableLogsSerialization, ex) {
     window["LastResponse"] = baseResponse;

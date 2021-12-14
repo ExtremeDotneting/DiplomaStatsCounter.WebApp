@@ -1,13 +1,14 @@
 import { FunctionArgumentException, InvalidArgumentTypeException } from "../exceptionProcessing/exceptions";
-import BaseTypes from "./baseTypes";
+import BaseTypesDefinitions from "./baseTypesDefinition";
 
 class TypeCheckingClass {
     constructor() {
         this._registeredTypes = {}
+        this._registeredTypesByTypeClass = {}
     }
 
     Initialize() {
-        TypeChecking.RegisterTypes(BaseTypes);
+        TypeChecking.RegisterTypes(BaseTypesDefinitions);
         window["TypeChecking"] = this;
         window["GetType"] = this.GetType;
         window["IsTypeOf"] = this.IsTypeOf;
@@ -66,6 +67,9 @@ class TypeCheckingClass {
         if (typeof func !== "function") {
             throw new InvalidArgumentTypeException({ func }, "function");
         }
+        for (var i = 0; i < argumentsTypesArray.length; i++) {
+            argumentsTypesArray[i] = TypeChecking._ResolveTypeName(argumentsTypesArray[i]);
+        }
         var newFunc = function () {
             var convertedArgs = TypeChecking._ConvertFuncArguments(arguments, argumentsTypesArray);
             if (convertedArgs.isError) {
@@ -85,10 +89,11 @@ class TypeCheckingClass {
         return newFunc;
     }
 
-    FuncCheckReturnType(func, returnTypeName) {
+    FuncCheckReturnType(func, returnTypeNameOrClass) {
         if (typeof func !== "function") {
             throw new InvalidArgumentTypeException({ func }, "function");
         }
+        var returnTypeName = TypeChecking._ResolveTypeName(returnTypeNameOrClass);
         var nonGenericType = TypeChecking._GetNonGenericTypeFromTypeStr(returnTypeName);
         var genericType = TypeChecking._GetGenericTypeFromTypeStr(returnTypeName);
         var isGeneric = TypeChecking._IsGenericTypeFromStr(returnTypeName);
@@ -167,17 +172,18 @@ class TypeCheckingClass {
     RegisterType(typeDefinition) {
         if (typeof (typeDefinition.TypeName) === 'string' && typeDefinition.TypeName.length > 0) {
             this._registeredTypes[typeDefinition.TypeName] = typeDefinition;
-            if (!window["Types"]) {
-                window["Types"] = {};
+            if (typeDefinition.TypeClass) {
+                var key = this._KeyFromClass(typeDefinition.TypeClass);
+                this._registeredTypesByTypeClass[key] = typeDefinition;
             }
-            window.Types[typeDefinition.TypeName] = typeDefinition.TypeName;
         }
         else {
-            throw "Can't register type.";
+            throw "Can't register type, (typeDefinition.TypeName) not recognized.";
         }
     }
 
-    IsTypeOf(obj, typeName) {
+    IsTypeOf(obj, typeNameOrClass) {
+        var typeName = this._ResolveTypeName(typeNameOrClass);
         var objType = this.GetType(obj);
 
         //Check if value null and type is nullable
@@ -203,7 +209,8 @@ class TypeCheckingClass {
         return false;
     }
 
-    AsType(obj, typeName) {
+    AsType(obj, typeNameOrClass) {
+        var typeName = this._ResolveTypeName(typeNameOrClass);
         var origTypeName = typeName;
 
         //Check if null and nullable
@@ -273,8 +280,33 @@ class TypeCheckingClass {
         this.IsNullableType(this.GetType(obj));
     }
 
-    IsNullableType(typeName) {
+    IsNullableType(typeNameOrClass) {
+        var typeName = this._ResolveTypeName(typeNameOrClass);
         return typeName === 'undefined' || typeName[typeName.length - 1] == '?';
+    }
+
+    _KeyFromClass(classObj) {
+        if (classObj.name) {
+            return "TypeDef_" + classObj.name;
+        } else {
+            console.log(classObj);
+            throw "Only objects with 'name' property can be used as TypeClass.";
+        }
+    }
+
+    _ResolveTypeName(typeNameOrClass) {
+        if (typeof (typeNameOrClass) == 'string') {
+            return typeNameOrClass;
+        }
+        else {
+            var key = this._KeyFromClass(typeNameOrClass);
+            var typeDefinition = this._registeredTypesByTypeClass[key];
+            if (typeDefinition) {
+                return typeDefinition.TypeName + "?";
+            } else {
+                return null;
+            }
+        }
     }
 
     _ConvertFuncArguments(args, argumentsTypesArray) {
@@ -351,5 +383,6 @@ class TypeCheckingClass {
 
 var TypeChecking = new TypeCheckingClass();
 TypeChecking.Initialize();
+window["TypeChecking"]=TypeChecking;
 
 export default TypeChecking;

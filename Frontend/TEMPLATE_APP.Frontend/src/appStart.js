@@ -1,4 +1,3 @@
-import "../libs/typeChecking/importer.js";
 import "../libs/http/httpClientSingleton";
 import Vue from 'vue';
 import App from '@/App.vue';
