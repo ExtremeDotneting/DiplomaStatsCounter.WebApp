@@ -51,6 +51,7 @@ let BaseTypes = [
     },
     {
         TypeName: "string",
+        Class: String,
         Check: (value) => TypeChecking._isString(value)
     }
 ]

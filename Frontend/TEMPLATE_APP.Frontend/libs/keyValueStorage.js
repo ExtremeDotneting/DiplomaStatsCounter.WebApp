@@ -2,11 +2,10 @@ import { Func } from "./typeChecking/importer"
 
 class KeyValueStorageClass {
 
-    set = Func(["string", "object?"],
-        (key, value) => {
-            var json = JSON.stringify(value);
-            localStorage.setItem(key, json);
-        })
+    set = ((key, value) => {
+        var json = JSON.stringify(value);
+        localStorage.setItem(key, json);
+    }).Args("string", "object")
 
     containsKey = Func(["string"], "boolean",
         (key) => {
@@ -23,7 +22,7 @@ class KeyValueStorageClass {
 
     get = Func(["string"], "object?",
         (key) => {
-            if (!this.containsKey(key)){
+            if (!this.containsKey(key)) {
                 throw "Not contains key '" + key + "'.";
             }
             var json = localStorage.getItem(key);

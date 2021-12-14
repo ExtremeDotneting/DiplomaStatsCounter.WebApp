@@ -1,15 +1,51 @@
-import { Function } from "core-js";
-import {InvalidArgumentTypeException} from "../exceptionProcessing/exceptions";
+import { FunctionArgumentException, InvalidArgumentTypeException } from "../exceptionProcessing/exceptions";
+import BaseTypes from "./baseTypes";
 
 class TypeCheckingClass {
     constructor() {
         this._registeredTypes = {}
     }
 
+    Initialize() {
+        TypeChecking.RegisterTypes(BaseTypes);
+        window["TypeChecking"] = this;
+        window["GetType"] = this.GetType;
+        window["IsTypeOf"] = this.IsTypeOf;
+        window["AsType"] = this.AsType;
+
+        this.DefineExtensionMethod(Object, "GetType",
+            function () {
+                return TypeChecking.GetType(this);
+            });
+
+        this.DefineExtensionMethod(Object, "IsTypeOf",
+            function (typeName) {
+                return TypeChecking.IsTypeOf(this, typeName);
+            });
+
+        this.DefineExtensionMethod(Object, "AsType",
+            function (typeName) {
+                return TypeChecking.AsType(this, typeName);
+            });
+
+        this.DefineExtensionMethod(Object, "Returns",
+            function (typeName) {
+                return TypeChecking.FuncCheckReturnType(this, typeName);
+            });
+
+        this.DefineExtensionMethod(Object, "Args",
+            function () {
+                var argumentsTypesArray = [];
+                for (var i = 0; i < arguments.length; i++) {
+                    argumentsTypesArray.push(arguments[i]);
+                }
+                return TypeChecking.FuncCheckArgumentsTypes(this, argumentsTypesArray);
+            });
+    }
+
     DefineExtensionMethod(classObj, methodName, func) {
-        if(typeof func !=="function")
-        {
-            throw new InvalidArgumentTypeException({func}, "function");
+        if (typeof func !== "function") {
+            throw new InvalidArgumentTypeException({ func }, "function");
         }
         classObj.defineProperty(classObj.prototype, methodName, {
             value: func,
@@ -18,12 +54,68 @@ class TypeCheckingClass {
         });
     }
 
-    DefineExtensionMethodForAny(methodName, func) {
-        this.DefineExtensionMethod(Object, methodName, func);
-        this.DefineExtensionMethod(String, methodName, func);        
-        this.DefineExtensionMethod(Number, methodName, func);        
-        this.DefineExtensionMethod(Boolean, methodName, func);
-        this.DefineExtensionMethod(Function, methodName, func);
+    // DefineExtensionMethodForAny1(methodName, func) {
+    //     this.DefineExtensionMethod(Object, methodName, func);
+    //     this.DefineExtensionMethod(String, methodName, func);
+    //     this.DefineExtensionMethod(Number, methodName, func);
+    //     this.DefineExtensionMethod(Boolean, methodName, func);
+    //     this.DefineExtensionMethod(Function, methodName, func);
+    // }
+
+    FuncCheckArgumentsTypes(func, argumentsTypesArray) {
+        if (typeof func !== "function") {
+            throw new InvalidArgumentTypeException({ func }, "function");
+        }
+        var newFunc = function () {
+            var convertedArgs = TypeChecking._ConvertFuncArguments(arguments, argumentsTypesArray);
+            if (convertedArgs.isError) {
+                var wrongArgIndex = convertedArgs.argIndex;
+
+                throw new FunctionArgumentException(
+                    arguments,
+                    argumentsTypesArray,
+                    wrongArgIndex,
+                    this,
+                    func
+                );
+            }
+            var res = func.apply(null, convertedArgs);
+            return res;
+        }
+        return newFunc;
+    }
+
+    FuncCheckReturnType(func, returnTypeName) {
+        if (typeof func !== "function") {
+            throw new InvalidArgumentTypeException({ func }, "function");
+        }
+        var nonGenericType = TypeChecking._GetNonGenericTypeFromTypeStr(returnTypeName);
+        var genericType = TypeChecking._GetGenericTypeFromTypeStr(returnTypeName);
+        var isGeneric = TypeChecking._IsGenericTypeFromStr(returnTypeName);
+
+        if (nonGenericType == "Promise") {
+            var asyncFunc = async function () {
+                var promise = func.apply(null, arguments);
+                promise = TypeChecking.AsType(promise, returnTypeName);
+
+                var res = await promise;
+                if (isGeneric) {
+                    res = TypeChecking.AsType(res, genericType);
+                } else {
+                    res = TypeChecking.AsType(res, "object?");
+                }
+                return res;
+            }
+            return asyncFunc;
+        }
+        else {
+            var syncFunc = function () {
+                var res = func.apply(null, arguments);
+                res = TypeChecking.AsType(res, returnTypeName);
+                return res;
+            }
+            return syncFunc;
+        }
     }
 
     Func(argumentsTypesArray, returnTypeName, func) {
@@ -153,7 +245,7 @@ class TypeCheckingClass {
             throw "Object '" + obj + "' can't be casted to type '" + origTypeName + "'.";
         }
 
-        if (obj && typeof (obj) !== 'boolean')
+        if (obj && (typeof (obj) !== 'boolean' || typeof (obj) === 'string'))
             obj.__typeName = typeName;
         return obj;
     }
@@ -187,7 +279,14 @@ class TypeCheckingClass {
 
     _ConvertFuncArguments(args, argumentsTypesArray) {
         for (var i = 0; i < argumentsTypesArray.length; i++) {
-            args[i] = TypeChecking.AsType(args[i], argumentsTypesArray[i]);
+            try {
+                args[i] = TypeChecking.AsType(args[i], argumentsTypesArray[i]);
+            } catch (ex) {
+                return {
+                    isError: true,
+                    argIndex: i
+                };
+            }
         }
         return args;
     }
@@ -251,5 +350,6 @@ class TypeCheckingClass {
 }
 
 var TypeChecking = new TypeCheckingClass();
+TypeChecking.Initialize();
 
 export default TypeChecking;
