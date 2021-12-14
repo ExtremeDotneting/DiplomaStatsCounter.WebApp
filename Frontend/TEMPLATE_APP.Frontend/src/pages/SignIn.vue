@@ -46,10 +46,10 @@
 
             <div v-if="loginByNicknameVisible && oauthCardVisible">
               <v-divider class="my-4"></v-divider>
-              <h4 class="text-center">Or login with</h4>
+              <h4 class="text-center">Or sigin in with</h4>
             </div>
             <div v-if="!loginByNicknameVisible">
-              <h4 class="text-center">Login with</h4>
+              <h4 class="text-center">Sigin in with</h4>
             </div>
 
             <div v-if="oauthCardVisible">
@@ -72,12 +72,12 @@
 </template>
 
 <script>
-import helpers from "../../libs/helpers.js";
+import Helpers from "../../libs/helpers.js";
 import ApiClient from "@/js/apiClient";
 import AppConfigs from "../../libs/appConfigsImport/configsImporter.js";
 
 export default {
-  name: "SignInPage",
+  isPage: true,
   data() {
     var isOAuthEnabled = AppConfigs.Auth.GithubAuthEnabled;
 
@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     validateEmail(email) {
-      helpers.validateEmail(email);
+      Helpers.validateEmail(email);
     },
     async login_ByNickname() {
       try {

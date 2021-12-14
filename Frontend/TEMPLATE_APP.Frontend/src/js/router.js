@@ -1,37 +1,40 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import SignInPage from "@/pages/SignInPage";
+import SignIn from "@/pages/SignIn";
 import AllPagesLinks from "@/components/AllPagesLinks";
 import DialogForm from "@/components/DialogForm";
-import EmptyPage from "@/pages/EmptyPage"
+import Empty from '@/components/Empty'
+import VueHelpers from '../../libs/vueHelpers';
+import CallbackProcessing from '@/components/CallbackProcessing'
 
 Vue.use(VueRouter)
 
-const routes = [
+let routes = [
   {
     path: '/',
-    component: EmptyPage
-  },  
-  {
-    path: '/allPagesLinks',
-    component: AllPagesLinks
-  },
-  {
-    path: '/signInPage',
-    component: SignInPage
-  },
-  {
-    path: '/dialogForm',
-    component: DialogForm
-  }  
+    component: Empty
+  }
 ]
+function addToRoute(component) {
+  VueHelpers.addComponentToRoutes(routes, component);
+}
+
+addToRoute(Empty);
+addToRoute(SignIn);
+addToRoute(AllPagesLinks);
+addToRoute(DialogForm);
+addToRoute(CallbackProcessing);
+
+VueHelpers.registerAllRoutes(routes);
+
+console.log("Routes:");
+console.log(routes);
 
 const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
 })
-
-router.replace({ path: '', redirect: '/' });
+//router.replace({ path: '', redirect: '/index' });
 
 export default router

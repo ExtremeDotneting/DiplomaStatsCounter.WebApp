@@ -17,4 +17,14 @@ window["AsType"] = AsType;
 let Func = TypeChecking.Func
 window["Func"] = Func;
 
+
+
+TypeChecking.DefineExtensionMethod(Object, "GetType",
+    function () {
+        return TypeChecking.GetType(this);
+    });
+
+
+
+
 export { TypeChecking, Types, GetType, AsType, Func, IsTypeOf }

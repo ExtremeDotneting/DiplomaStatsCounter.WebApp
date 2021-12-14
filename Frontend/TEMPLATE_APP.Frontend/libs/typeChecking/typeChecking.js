@@ -1,6 +1,29 @@
+import { Function } from "core-js";
+import {InvalidArgumentTypeException} from "../exceptionProcessing/exceptions";
+
 class TypeCheckingClass {
     constructor() {
         this._registeredTypes = {}
+    }
+
+    DefineExtensionMethod(classObj, methodName, func) {
+        if(typeof func !=="function")
+        {
+            throw new InvalidArgumentTypeException({func}, "function");
+        }
+        classObj.defineProperty(classObj.prototype, methodName, {
+            value: func,
+            writable: true,
+            configurable: true
+        });
+    }
+
+    DefineExtensionMethodForAny(methodName, func) {
+        this.DefineExtensionMethod(Object, methodName, func);
+        this.DefineExtensionMethod(String, methodName, func);        
+        this.DefineExtensionMethod(Number, methodName, func);        
+        this.DefineExtensionMethod(Boolean, methodName, func);
+        this.DefineExtensionMethod(Function, methodName, func);
     }
 
     Func(argumentsTypesArray, returnTypeName, func) {

@@ -2,7 +2,7 @@ import DialogForm from "../components/DialogForm";
 import Vue from 'vue';
 import vuetify from '@/plugins/vuetify';
 import router from '@/js/router';
-import helpers from "../../libs/helpers.js"
+import Helpers from "../../libs/helpers.js"
 
 var Dialogs = {
     showDialog({
@@ -47,7 +47,7 @@ var Dialogs = {
             })
             .$mount();
 
-        var contentId = helpers.textGen(10);
+        var contentId = Helpers.textGen(10);
         dataTemplate.contentRandomId = contentId;
 
         if (typeOfComponentContent) {

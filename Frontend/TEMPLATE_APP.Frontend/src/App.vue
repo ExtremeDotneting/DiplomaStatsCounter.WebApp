@@ -13,16 +13,20 @@
 <script>
 import ApiClient from "@/js/apiClient";
 import router from "@/js/router.js";
+import VueHelper from "../libs/vueHelpers";
 
 export default {
   name: "App",
 
   mounted: async () => {
-    var isLogined = await ApiClient.isLogined();
-    if (isLogined) {
-      console.log("User was logined.");
-    } else {
-      router.push("signInPage");
+    var currentComponent = VueHelper.getVueComponentByRoute();
+    if (currentComponent.isAuthRequired) {
+      var isLogined = await ApiClient.isLogined();
+      if (isLogined) {
+        console.log("User was logined.");
+      } else {
+        router.push("signIn");
+      }
     }
   },
 

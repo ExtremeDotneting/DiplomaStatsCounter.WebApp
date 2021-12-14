@@ -7,11 +7,11 @@ import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import '@mdi/font/css/materialdesignicons.css';
 import router from '@/js/router';
 import './main.css';
-import helpers from "../libs/helpers.js"
+import Helpers from "../libs/helpers.js"
 
 function appStart() {
   try {
-    helpers.setZoom(0.7);
+    Helpers.setZoom(0.7);
   } catch (ex) {
     console.error(ex);
   }

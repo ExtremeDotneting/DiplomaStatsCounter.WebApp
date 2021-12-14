@@ -1,12 +1,12 @@
 <template>
-  <p>Loading....</p>
+  <p>{{ pageText }}</p>
 </template>
 
 <script>
 import AppConfigs from "../../libs/appConfigsImport/configsImporter";
 
 export default {
-  name: "EmptyPage",
+  name: "Empty",
   mounted() {},
   data() {
     var text = "";

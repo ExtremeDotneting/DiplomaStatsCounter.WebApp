@@ -1,4 +1,16 @@
-var Helpers = {
+
+class HelpersClass {
+    getFileName(path) {
+        var array = path.split("/")
+        var fileName = array[array.length - 1];
+
+        var lastDotPosition = fileName.lastIndexOf(".");
+        if (lastDotPosition === -1)
+            return fileName;
+        else
+            return fileName.substr(0, lastDotPosition);
+    }
+
     setZoom(zoom) {
         var setSizes = function () {
             if (!zoom)
@@ -21,13 +33,13 @@ var Helpers = {
         } else {
             window.onload = setSizes;
         }
-    },
+    }
 
     validateEmail(email) {
         /* eslint-disable-next-line */
         const re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(email);
-    },
+    }
 
     textGen(length) {
         var result = '';
@@ -37,7 +49,7 @@ var Helpers = {
             result += characters.charAt(Math.floor(Math.random() * charactersLength));
         }
         return result;
-    },
+    }
 
 
     formatDateTime(dateTime) {
@@ -45,43 +57,66 @@ var Helpers = {
         var time = (dateTime.getHours() + '').padStart(2, '0') + ":" + (dateTime.getMinutes() + '').padStart(2, '0') + ":" + (dateTime.getSeconds() + '').padStart(2, '0');
         var dateTimeStr = date + 'T' + time + 'Z';
         return dateTimeStr;
-    },
+    }
 
     getCurrentDateTime() {
         return this.formatDateTime(new Date());
-    },
+    }
 
     randInt(min, max) {
         let rand = min + Math.random() * (max + 1 - min);
         return Math.floor(rand);
-    },
+    }
 
     randInt2(max) {
         let rand = Math.random() * (max + 1);
         return Math.floor(rand);
-    },
+    }
+
+    redirectWithUrlParams(url, urlParamsObject) {
+        url = url + "?";
+        for (var urlParamName of Object.keys(urlParamsObject)) {
+            var urlParamValue = encodeURIComponent(urlParamsObject[urlParamName]);
+            urlParamValue = encodeURIComponent(urlParamValue);
+            url = url + urlParamName + "=" + urlParamValue + "&";
+        }
+        url = url.substr(url.length - 2);
+        window.location.href = url;
+    }
 
     getUrlParameter(name, url = window.location.href) {
+        return this.getAllUrlParameters(url)[name];
+    }
+
+    getAllUrlParameters(url = window.location.href) {
         //eslint-disable-next-line
-        name = name.replace(/[\[\]]/g, '\\$&');
-        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-            results = regex.exec(url);
-        if (!results) return null;
-        if (!results[2]) return '';
-        return decodeURIComponent(results[2].replace(/\+/g, ' '));
-    },
+        url = url.replace(/^.*\/\/[^\/][^\?]+/, '')
+        var match,
+            //eslint-disable-next-line
+            pl = /\+/g,  // Regex for replacing addition symbol with a space
+            //eslint-disable-next-line
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) { return decodeURIComponent(s.replace(pl, " ")); },
+            query = url.substring(1);
+
+        var urlParams = {};
+        //eslint-disable-next-line
+        while (match = search.exec(query))
+            urlParams[decode(match[1])] = decode(match[2]);
+        return urlParams;
+    }
 
     logAsJson(obj) {
         console.log(JSON.stringify(obj, null, 2));
-    },
+    }
 
     log(obj) {
         console.log(obj);
-    },
+    }
 
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-    },
+    }
 
     generateRandomUUID() { // Public Domain/MIT
         var d = new Date().getTime();//Timestamp
@@ -100,5 +135,7 @@ var Helpers = {
     }
 
 }
+
+let Helpers = new HelpersClass();
 
 export default Helpers;

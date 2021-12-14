@@ -1,6 +1,6 @@
 import TestsApi from "../libs/testsApi/testsApi";
 import dialogs from "../src/js/dialogs"
-import SignInPage from '@/pages/SignInPage'
+import SignIn from '@/pages/SignIn'
 import Vue from 'vue'
 
 TestsApi.registerTest("DialogTests_HtmlElementContent", async function () {
@@ -13,7 +13,7 @@ TestsApi.registerTest("DialogTests_HtmlElementContent", async function () {
 });
 
 TestsApi.registerTest("DialogTests_CreatedComponentContent", async function () {
-    let CompClass = Vue.extend(SignInPage);
+    let CompClass = Vue.extend(SignIn);
     let instance = new CompClass( /* here can configure it */);
     await dialogs.showDialog({
         createdComponentContent: instance,
@@ -23,7 +23,7 @@ TestsApi.registerTest("DialogTests_CreatedComponentContent", async function () {
 
 TestsApi.registerTest("DialogTests_TypeOfComponentContent", async function () {
     await dialogs.showDialog({
-        typeOfComponentContent: SignInPage,
+        typeOfComponentContent: SignIn,
         fullscreen: true
     });
 });
