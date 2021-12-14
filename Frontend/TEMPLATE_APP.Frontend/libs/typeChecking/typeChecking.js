@@ -131,7 +131,7 @@ class TypeCheckingClass {
         }
 
         if (obj && typeof (obj) !== 'boolean')
-            obj.TypeName = typeName;
+            obj.__typeName = typeName;
         return obj;
     }
 
@@ -141,8 +141,8 @@ class TypeCheckingClass {
                 return "undefined";
             }
             else {
-                if (typeof (obj["TypeName"]) === 'string' && obj.TypeName.length > 0) {
-                    return obj.TypeName;
+                if (typeof (obj["__typeName"]) === 'string' && obj.__typeName.length > 0) {
+                    return obj.__typeName;
                 }
                 else {
                     return typeof (obj);

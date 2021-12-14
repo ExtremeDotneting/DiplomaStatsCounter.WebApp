@@ -1,28 +1,29 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import LoginPage from "@/pages/LoginPage";
+import SignInPage from "@/pages/SignInPage";
 import AllPagesLinks from "@/components/AllPagesLinks";
 import DialogForm from "@/components/DialogForm";
+import EmptyPage from "@/pages/EmptyPage"
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    component: AllPagesLinks
-  },
+    component: EmptyPage
+  },  
   {
     path: '/allPagesLinks',
     component: AllPagesLinks
   },
   {
-    path: '/loginPage',
-    component: LoginPage
+    path: '/signInPage',
+    component: SignInPage
   },
   {
     path: '/dialogForm',
     component: DialogForm
-  }
+  }  
 ]
 
 const router = new VueRouter({
@@ -31,11 +32,6 @@ const router = new VueRouter({
   routes
 })
 
-router.replace({ path: '', redirect: '/allPagesLinks' });
+router.replace({ path: '', redirect: '/' });
 
-export {
-  router,
-  LoginPage,
-  AllPagesLinks,
-  DialogForm
-}
+export default router

@@ -2,7 +2,7 @@ import { Func } from "./typeChecking/importer"
 
 class KeyValueStorageClass {
 
-    set = Func(["string", "object"],
+    set = Func(["string", "object?"],
         (key, value) => {
             var json = JSON.stringify(value);
             localStorage.setItem(key, json);

@@ -1,16 +1,18 @@
 import Helpers from "../helpers";
-import AppConfigs from "../appConfigsImport/configsImporter"
+import AppConfigs from "../appConfigsImport/configsImporter";
 import { Func } from "../typeChecking/importer";
 
 class HttpClientClass {
-  constructor() {
-    this.defaultHeaders = {
-      'Accept': 'texthtml,applicationxhtml+xml,applicationxml;q=0.9,imagewebp,imageapng,;q=0.8,applicationsigned-exchange;v=b3;q=0.9',
-      'Content-Type': 'application/json',
-      'Cache': 'no-cache',
-      //'Cookie': "aa=qq"
-    };
+  withCredentials = false
+  basePath = AppConfigs.ApiUrl
+  defaultHeaders = {
+    'Accept': 'texthtml,applicationxhtml+xml,applicationxml;q=0.9,imagewebp,imageapng,;q=0.8,applicationsigned-exchange;v=b3;q=0.9',
+    'Content-Type': 'application/json',
+    'Cache': 'no-cache',
+    //'Cookie': "aa=qq"
+  };
 
+  constructor() {
   }
 
   get = Func(["string", "object?", "boolean?"], "Promise<object?>",
@@ -23,10 +25,27 @@ class HttpClientClass {
       return await this.send("POST", url, requestObj, headers, disableLogsSerialization);
     })
 
+  put = Func(["string", "object?", "object?", "boolean?"], "Promise<object?>",
+    async (url, requestObj, headers, disableLogsSerialization) => {
+      return await this.send("PUT", url, requestObj, headers, disableLogsSerialization);
+    })
+
+  delete = Func(["string", "object?", "object?", "boolean?"], "Promise<object?>",
+    async (url, requestObj, headers, disableLogsSerialization) => {
+      return await this.send("DELETE", url, requestObj, headers, disableLogsSerialization);
+    })
+
   async send(method, url, requestObj, headers, disableLogsSerialization) {
     var baseResponse = null;
     var responseText = null;
     var responseObj = null;
+
+    if (!url.startsWith("http")) {
+      if (url.startsWith("/"))
+        url = this.basePath + url;
+      else
+        url = this.basePath + "/" + url;
+    }
 
     if (!headers)
       headers = this.defaultHeaders;
@@ -35,7 +54,8 @@ class HttpClientClass {
       var request = {
         method: method,
         url: url,
-        headers: headers
+        headers: headers,
+        withCredentials: this.withCredentials
       };
       if (requestObj) {
         var requestJson = JSON.stringify(requestObj);
@@ -43,7 +63,7 @@ class HttpClientClass {
       }
 
       //Send http request
-      baseResponse = await this._sendXMLHttpRequest(request);
+      baseResponse = await this.asyncXMLHttpRequest(request);
 
       responseText = await baseResponse.response;
       try {
@@ -60,6 +80,8 @@ class HttpClientClass {
         }
       }
 
+      await this._processResponse(baseResponse, responseObj);
+
       this._writeLogs(method, url, requestObj, baseResponse, responseText, responseObj, disableLogsSerialization);
     }
     catch (ex) {
@@ -69,27 +91,28 @@ class HttpClientClass {
     return responseObj;
   }
 
-  // _addDefaultHeaders(headers) {
-  //   var headersWithDefault = {};
-  //   var headerNames = Object.keys(this.defaultHeaders);
-  //   for (var i = 0; i < this.defaultHeaders.length; i++) {
-  //     var headerName = headerNames[i];
-  //     headersWithDefault[headerName] = this.defaultHeaders[headerName];
-  //   }
-  //   if (headers) {
-  //     headerNames = Object.keys(headers);
-  //     for (var i = 0; i < headers.length; i++) {
-  //       var headerName = headerNames[i];
-  //       headersWithDefault[headerName] = headers[headerName];
-  //     }
-  //   }
-  //   return headersWithDefault;
-  // }
+  //Get headers, return headers.
+  addDefaultHeaders(headers) {
+    var headersWithDefault = {};
+    var headerNames = Object.keys(this.defaultHeaders);
+    for (var i = 0; i < this.defaultHeaders.length; i++) {
+      var headerName = headerNames[i];
+      headersWithDefault[headerName] = this.defaultHeaders[headerName];
+    }
+    if (headers) {
+      headerNames = Object.keys(headers);
+      for (i = 0; i < headers.length; i++) {
+        headerName = headerNames[i];
+        headersWithDefault[headerName] = headers[headerName];
+      }
+    }
+    return headersWithDefault;
+  }
 
-  async _sendXMLHttpRequest({ method, url, body, headers }) {
+  async asyncXMLHttpRequest({ method, url, body, headers, withCredentials }) {
     return new Promise(function (resolve, reject) {
       let xhr = new XMLHttpRequest();
-      xhr.withCredentials = true;
+      xhr.withCredentials = withCredentials;
       xhr.open(method, url, true);
       var headerNames = Object.keys(headers);
       for (var i = 0; i < headerNames.length; i++) {
@@ -108,6 +131,12 @@ class HttpClientClass {
         xhr.send();
     });
   }
+
+  _processResponse = Func(["XMLHttpRequest", "object?"], "Promise",
+    //eslint-disable-next-line
+    async (xhr, responseObj) => {
+      //Use this to override processing response.
+    })
 
   _writeLogs(method, url, requestObj, baseResponse, responseText, responseObj, disableLogsSerialization, ex) {
     window["LastResponse"] = baseResponse;

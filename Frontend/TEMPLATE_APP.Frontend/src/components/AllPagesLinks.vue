@@ -1,7 +1,7 @@
 <template>
   <v-container>
     <p>
-      <router-link to="/loginPage">LoginPage</router-link>
+      <router-link to="/signInPage">SignInPage</router-link>
     </p>
     <p>
       <router-link to="/dialogForm">DialogForm</router-link>

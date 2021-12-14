@@ -2,9 +2,7 @@
   <v-app>
     <v-main>
       <router-view></router-view>
-      <div id="app-override-place" fluid fill-height>
-
-      </div>
+      <div id="app-override-place" fluid fill-height></div>
     </v-main>
 
     <!-- Crunch to disable eslint errors-->
@@ -13,14 +11,19 @@
 </template>
 
 <script>
-import { router, LoginPage, DialogForm } from "@/js/router.js";
+import ApiClient from "@/js/apiClient";
+import router from "@/js/router.js";
 
 export default {
   name: "App",
 
-  components: {
-    LoginPage,
-    DialogForm,
+  mounted: async () => {
+    var isLogined = await ApiClient.isLogined();
+    if (isLogined) {
+      console.log("User was logined.");
+    } else {
+      router.push("signInPage");
+    }
   },
 
   data: () => ({
