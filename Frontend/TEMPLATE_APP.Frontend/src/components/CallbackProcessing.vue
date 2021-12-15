@@ -10,12 +10,11 @@ export default {
   name: "CallbackProcessing",
   components: { Empty },
   mounted() {
-    if (Helpers.getUrlParameter("redirect_next_to")) {
-      var params = Helpers.getAllUrlParameters();
-      Helpers.redirectWithUrlParams(
-        Helpers.getUrlParameter("redirect_next_to"),
-        params
-      );
+    var params = Helpers.getAllUrlParameters();
+    var redirectNextTo = params["redirect_next_to"];
+    if (redirectNextTo) {
+      params["redirect_next_to"] = null;
+      Helpers.redirectWithUrlParams(redirectNextTo, params);
     }
   },
   data() {

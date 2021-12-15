@@ -74,13 +74,25 @@ class HelpersClass {
     }
 
     redirectWithUrlParams(url, urlParamsObject) {
-        url = url + "?";
-        for (var urlParamName of Object.keys(urlParamsObject)) {
-            var urlParamValue = encodeURIComponent(urlParamsObject[urlParamName]);
-            urlParamValue = encodeURIComponent(urlParamValue);
-            url = url + urlParamName + "=" + urlParamValue + "&";
+        url = url.trim();
+        if (url.includes("?")) {
+            url = url + "&";
         }
-        url = url.substr(url.length - 2);
+        else {
+            url = "?";
+        }
+
+        var paramsWasAdded = false;
+        for (var urlParamName of Object.keys(urlParamsObject)) {
+            urlParamName = encodeURIComponent(urlParamName);
+            if (urlParamValue) {
+                var urlParamValue = encodeURIComponent(urlParamsObject[urlParamName]);
+                url = url + urlParamName + "=" + urlParamValue + "&";
+                paramsWasAdded = true;
+            }
+        }
+        if (paramsWasAdded)
+            url = url.substr(0, url.length - 2);
         window.location.href = url;
     }
 

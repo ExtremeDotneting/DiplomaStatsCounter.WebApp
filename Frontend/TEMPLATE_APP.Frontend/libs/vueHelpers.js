@@ -12,7 +12,8 @@ class VueHelpersClass {
     }
 
     getVueComponentByRoute(pathname = window.location.pathname) {
-        return this.routes[pathname].component;
+        var comp = this.routes[pathname].component;
+        return comp.AsType("object");
     }
 
     addComponentToRoutes(routes, component) {
@@ -30,7 +31,8 @@ class VueHelpersClass {
 
             routes.push({
                 path: url,
-                component: component
+                component: component,
+                props: true
             })
         } catch (ex) {
             console.error(ex);
