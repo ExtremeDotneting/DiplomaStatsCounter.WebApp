@@ -18,7 +18,12 @@ class KeyValueStorageClass {
         if (!this.containsKey(key))
             return null;
         var json = localStorage.getItem(key);
-        return JSON.parse(json);
+        try {
+            return JSON.parse(json);
+        }
+        catch (ex) {
+            return null;
+        }
     })
         .Args("string")
         .Returns("object?")
