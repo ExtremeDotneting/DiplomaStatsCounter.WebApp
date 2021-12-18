@@ -5,6 +5,6 @@ class TestsApiClass {
     }
 }
 
-var TestsApi=new TestsApiClass();
+const TestsApi=new TestsApiClass();
 
 export default TestsApi;

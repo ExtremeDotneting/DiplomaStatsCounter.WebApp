@@ -1,6 +1,7 @@
 import HttpClientClass from "../../libs/http/httpClient";
 import AppConfigs from "../../libs/appConfigsImport/configsImporter";
 import KeyValueStorage from "../../libs/keyValueStorage";
+import Consts from "./consts";
 
 class ApiClientClass extends HttpClientClass {
     _userCachedValue = null
@@ -33,6 +34,13 @@ class ApiClientClass extends HttpClientClass {
         }
     }
 
+    getGithubOAuthUrl() {
+        var callbackUrl = AppConfigs.OriginUrl + "/" + Consts.CallbackMethodOAuthPath;
+        callbackUrl = encodeURI(callbackUrl);
+        var url = this.basePath + "/auth/github/login?redirectUrl=" + callbackUrl;
+        return url;
+    }
+
     async loginByNickname(nickname, password) {
         var req = { nickname, password };
         var authResult = await this.post("auth/loginByNickname", req);
@@ -43,7 +51,7 @@ class ApiClientClass extends HttpClientClass {
     async logout() {
         try {
             await this.post("auth/logout", {});
-        //eslint-disable-next-line
+            //eslint-disable-next-line
         } catch (ex) { }
         this.setCredentials(null);
     }

@@ -44,5 +44,5 @@ class KeyValueStorageClass {
         .Args("string")
 }
 
-var KeyValueStorage = new KeyValueStorageClass();
+const  KeyValueStorage = new KeyValueStorageClass();
 export default KeyValueStorage;

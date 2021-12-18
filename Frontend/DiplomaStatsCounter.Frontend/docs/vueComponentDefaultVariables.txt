@@ -1,0 +1,4 @@
+Add this fields to your component to attach aditional logic:
+1. name : "MyComponent" - Must be added to all components to make auto routes registration works.
+2. isAuthRequired: true - Redirect to sign in page if user not logined.
+3. childRoutes: [Component1, Component2] - allow you to use inner <router-view> and links lien /myComponent/component1

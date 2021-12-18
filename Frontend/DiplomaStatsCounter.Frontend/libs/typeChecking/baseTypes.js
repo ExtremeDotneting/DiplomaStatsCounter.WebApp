@@ -1,5 +1,5 @@
 
-let BaseTypes = {
+const BaseTypes = {
     Int() { },
     Double() { },
     String() { },

@@ -11,22 +11,24 @@
 </template>
 
 <script>
-import ApiClient from "@/js/apiClient";
-import router from "@/js/router.js";
-import VueHelper from "../libs/vueHelpers";
+import ApiClient from "./js/apiClient";
+import router from "./js/router.js";
+import VueHelpers from "../libs/vueHelpers";
+import Consts from "./js/consts";
 
 export default {
   name: "App",
 
   mounted: async () => {
-    var currentComponent = VueHelper.getVueComponentByRoute();
-    if (currentComponent.isAuthRequired) {
+    var currentComponentInfo = VueHelpers.getVueComponentInfoByRoute();
+    if(!currentComponentInfo){
+      router.push(Consts.MainPath);
+    }
+
+    currentComponentInfo = VueHelpers.getVueComponentInfoByRoute();
+    if (currentComponentInfo.component.isAuthRequired) {
       var isLogined = await ApiClient.isLogined();
-      if (isLogined) {
-        console.log("User was logined.");
-      } else {
-        router.push("signIn");
-      }
+      if (!isLogined) router.push(Consts.SignInPath);
     }
   },
 

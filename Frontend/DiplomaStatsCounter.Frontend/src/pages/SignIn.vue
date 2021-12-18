@@ -61,6 +61,7 @@
                 color="primary"
                 rounded
                 block
+                @click="login_ByGithub"
                 >GitHub</v-btn
               >
             </div>
@@ -76,8 +77,7 @@ import Helpers from "../../libs/helpers.js";
 import ApiClient from "@/js/apiClient";
 import AppConfigs from "../../libs/appConfigsImport/configsImporter.js";
 
-export default {
-  isPage: true,
+export default {  
   data() {
     var isOAuthEnabled = AppConfigs.Auth.GithubAuthEnabled;
 
@@ -103,10 +103,14 @@ export default {
           throw "Form validate error.";
         }
         await ApiClient.loginByNickname(this.login, this.password);
-        window.location.href = "/";
+        Helpers.redirect("/");
       } catch (ex) {
         console.log(ex);
       }
+    },
+    async login_ByGithub() {
+      var authUrl = ApiClient.getGithubOAuthUrl();
+      Helpers.redirect(authUrl);
     },
     passwordVisiblilityToggle() {
       this.passwordVisiblility = !this.passwordVisiblility;

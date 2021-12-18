@@ -381,7 +381,7 @@ class TypeCheckingClass {
 
 }
 
-var TypeChecking = new TypeCheckingClass();
+const TypeChecking = new TypeCheckingClass();
 TypeChecking.Initialize();
 window["TypeChecking"]=TypeChecking;
 

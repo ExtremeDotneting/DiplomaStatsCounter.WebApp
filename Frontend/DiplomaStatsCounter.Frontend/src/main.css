@@ -7,3 +7,10 @@
     position: absolute;
     bottom: 0;
 }
+
+.main-icon-svg{
+    fill: #fff;
+    stroke: #fff;
+    margin: 1px;
+
+}

@@ -22,7 +22,6 @@ export default {
     if (method) {
       params["method"] = null;
       await UrlCallbacks[method](params);
-      //window.location.href = "/";
     }
   },
   data() {

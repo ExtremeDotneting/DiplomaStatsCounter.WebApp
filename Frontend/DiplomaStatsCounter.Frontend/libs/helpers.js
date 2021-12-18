@@ -73,6 +73,11 @@ class HelpersClass {
         return Math.floor(rand);
     }
 
+    redirect(url) {
+        url = url.trim();
+        window.location.href = url;
+    }
+
     redirectWithUrlParams(url, urlParamsObject) {
         url = url.trim();
         if (url.includes("?")) {
@@ -148,6 +153,6 @@ class HelpersClass {
 
 }
 
-let Helpers = new HelpersClass();
+const  Helpers = new HelpersClass();
 
 export default Helpers;

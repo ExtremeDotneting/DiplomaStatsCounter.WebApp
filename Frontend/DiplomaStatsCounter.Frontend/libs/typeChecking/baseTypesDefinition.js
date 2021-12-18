@@ -1,7 +1,7 @@
 import TypeChecking from "./typeChecking.js"
 import BaseTypes from "./baseTypes";
 
-let BaseTypesDefinitions = [
+const BaseTypesDefinitions = [
     {
         TypeName: "Array",
         TypeClass: BaseTypes.Array,
