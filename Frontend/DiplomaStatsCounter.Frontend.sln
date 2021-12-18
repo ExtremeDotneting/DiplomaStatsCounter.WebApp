@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31702.278
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "TEMPLATE_APP.Frontend", "TEMPLATE_APP.Frontend\TEMPLATE_APP.Frontend.njsproj", "{1BA437DA-AAC5-4EE7-90D2-1FEA82FAC123}"
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "DiplomaStatsCounter.Frontend", "DiplomaStatsCounter.Frontend\DiplomaStatsCounter.Frontend.njsproj", "{1BA437DA-AAC5-4EE7-90D2-1FEA82FAC123}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
