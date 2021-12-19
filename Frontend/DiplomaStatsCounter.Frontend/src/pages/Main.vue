@@ -46,18 +46,18 @@
 </style>
 
 <script>
-import Empty from "@/components/Empty";
 import Helpers from "../../libs/helpers";
 import VueHelpers from "../../libs/vueHelpers";
 import ApiClient from "../js/apiClient";
 import GitHubUserStats from "@/pages/GitHubUserStats";
 import GitHubRepositories from '@/pages/GitHubRepositories';
 import GitHubRepositoryStats from "@/pages/GitHubRepositoryStats"
+import RegressionModel from '@/pages/RegressionModel'
 
 const MyDefinition = {
   name: "Main",
   isAuthRequired: true,
-  childRoutes: [GitHubUserStats, GitHubRepositories, GitHubRepositoryStats, Empty],
+  childRoutes: [GitHubUserStats, GitHubRepositories, GitHubRepositoryStats, RegressionModel],
   created() {
     //Redirect to '/main/childRoutes[0]' in it's '/main'
     var currentComponent = VueHelpers.getVueComponentInfoByRoute(1);

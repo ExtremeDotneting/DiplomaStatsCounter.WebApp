@@ -7,7 +7,6 @@ import '@mdi/font/css/materialdesignicons.css';
 import router from '@/js/router';
 import './main.css';
 //import Helpers from "../libs/helpers.js"
-import { Chart, registerables } from 'chart.js';
 
 
 function appStart() {
@@ -16,8 +15,6 @@ function appStart() {
   } catch (ex) {
     console.error(ex);
   }
-  Chart.register(...registerables);
-  Vue.config.productionTip = false
   window["VueApp"] = new Vue({
     vuetify,
     router,

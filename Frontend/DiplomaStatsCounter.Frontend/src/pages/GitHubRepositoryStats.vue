@@ -3,27 +3,42 @@
     <v-card>
       <v-card-subtitle>Detailed stats</v-card-subtitle>
       <v-card-text>
-        <h4>Id: {{ repoInfo.id }}</h4>
-        <h4>Name: {{ repoInfo.name }}</h4>
-        <h4>
-          URL:
-          <a :href="repoInfo.htmlUrl" style="color: blue">{{
-            repoInfo.htmlUrl
-          }}</a>
-        </h4>
-        <h4>Language: {{ repoInfo.language }}</h4>
-        <h4>Total commits: {{ repoInfo.totalCommits }}</h4>
-        <h4>Pull request: {{ repoInfo.pullRequestsCount }}</h4>
-        <h4>Opened issue: {{ repoInfo.openIssuesCount }}</h4>
-        <h4>Total issue: {{ repoInfo.issuesCount }}</h4>
-        <h4>Forks: {{ repoInfo.forksCount }}</h4>
-        <h4>Watchers: {{ repoInfo.watchersCount }}</h4>
-        <h4>Size: {{ repoInfo.size }} bytes</h4>
+        <div v-if="!repoLoaded">
+          <v-text-field
+            label="Enter repository url"
+            v-model="searchingRepoUrl"
+          ></v-text-field>
+          <v-btn outlined @click="findRepo">Find</v-btn>
+        </div>
 
-        <div style="width: 100%; overflow-x: auto">
-          <div id="repoStatsChartContainer">
-            <canvas id="repoStatsChart"></canvas>
-          </div>
+        <div v-if="repoLoaded">
+          <v-btn
+            small
+            outlined
+            :color="getIsUsedInTrainingColor(repoInfo)"
+            rounded
+            @click="swithcUseInTraining(repoInfo)"
+          >
+            {{ getIsUsedInTrainingText(repoInfo) }}
+          </v-btn>
+          <h4>Id: {{ repoInfo.id }}</h4>
+          <h4>Name: {{ repoInfo.name }}</h4>
+          <h4>
+            URL:
+            <a :href="repoInfo.htmlUrl" style="color: blue">{{
+              repoInfo.htmlUrl
+            }}</a>
+          </h4>
+          <h4>Language: {{ repoInfo.language }}</h4>
+          <h4>Total commits: {{ repoInfo.totalCommits }}</h4>
+          <h4>Pull request: {{ repoInfo.pullRequestsCount }}</h4>
+          <h4>Opened issue: {{ repoInfo.openIssuesCount }}</h4>
+          <h4>Total issue: {{ repoInfo.issuesCount }}</h4>
+          <h4>Forks: {{ repoInfo.forksCount }}</h4>
+          <h4>Watchers: {{ repoInfo.watchersCount }}</h4>
+          <h4>Size: {{ repoInfo.size }} bytes</h4>
+
+          <div id="repoStatsChart" style="height: 370px; width: 100%"></div>
         </div>
       </v-card-text>
     </v-card>
@@ -33,27 +48,25 @@
 <script>
 import Helpers from "../../libs/helpers.js";
 import ApiClient from "../js/apiClient";
-import { Chart } from "chart.js";
-// import AppConfigs from "../../libs/appConfigsImport/configsImporter.js";
-//import Consts from "../js/consts";
+import Consts from "../js/consts";
 
 export default {
   name: "GitHubRepositoryStats",
   async created() {
     var repoUrl = Helpers.getUrlParameter("repo_url");
+    if (!repoUrl) {
+      this.repoLoaded = false;
+      return;
+    }
     var repoShortInfo = await ApiClient.github_getRepositoryByUrl(repoUrl);
     var repoInfo = await ApiClient.github_getRepositoryInfo(repoShortInfo.id);
     this.repoInfo = repoInfo;
     this.initChart(this.repoInfo);
-    var div = document.getElementById("repoStatsChartContainer");
-    var canv = document.getElementById("repoStatsChart");
-    div.style.height = 300;
-    canv.height = 300;
-    div.style.width = repoInfo.weekCommitStats.length * 10 + "px";
-    //canv.width = repoInfo.weekCommitStats.length * 10 + "px";
   },
   data() {
     return {
+      repoLoaded: true,
+      searchingRepoUrl: null,
       repoInfo: {
         id: "Loading...",
         name: "Loading...",
@@ -97,6 +110,33 @@ export default {
     };
   },
   methods: {
+    getIsUsedInTrainingText(item) {
+      if (item.isUsingInTeaching) {
+        return "✓ Used in model training";
+      } else {
+        return "⨉ Not used in model training";
+      }
+    },
+    getIsUsedInTrainingColor(item) {
+      if (item.isUsingInTeaching) {
+        return "#006629";
+      } else {
+        return "#d18800";
+      }
+    },
+    async swithcUseInTraining(item) {
+      item.isUsingInTeaching = !item.isUsingInTeaching;
+      await ApiClient.github_setUseInTeaching(item.id, item.isUsingInTeaching);
+    },
+    findRepo() {
+      if (this.searchingRepoUrl) {
+        var url =
+          Consts.RepositoryStats +
+          "?repo_url=" +
+          encodeURI(this.searchingRepoUrl);
+        Helpers.redirect(url);
+      }
+    },
     initChart(repoInfo) {
       //       averageAdditionsLinesCount: 0,
       // averageDeletionsLinesCount: 0,
@@ -104,15 +144,15 @@ export default {
       // averageAuthorsCount: 0,
       // averageCommitsCount: 0,
 
-      var commitsModifier = (repoInfo.averageCommitsCount + 1) / 200;
-      var additionsModifier = (repoInfo.averageAdditionsLinesCount + 1) / 200;
-      var deletionsModifier = (repoInfo.averageDeletionsLinesCount + 1) / 200;
-      var newLinesModifier = (repoInfo.averageNewLinesCount + 1) / 200;
-      var authorsModifier = (repoInfo.averageAuthorsCount + 1) / 200;
+      // var commitsModifier = (repoInfo.averageCommitsCount + 1) / 200;
+      // var additionsModifier = (repoInfo.averageAdditionsLinesCount + 1) / 200;
+      // var deletionsModifier = (repoInfo.averageDeletionsLinesCount + 1) / 200;
+      // var newLinesModifier = (repoInfo.averageNewLinesCount + 1) / 200;
+      // var authorsModifier = (repoInfo.averageAuthorsCount + 1) / 200;
 
-      var maxY = (repoInfo.averageAdditionsLinesCount / additionsModifier) * 7;
-      var minY = -maxY / 100;
-      console.log(maxY + " " + minY);
+      // var maxY = (repoInfo.averageAdditionsLinesCount / additionsModifier) * 7;
+      // var minY = -maxY / 100;
+      //console.log(maxY + " " + minY);
 
       var labels = [];
       var commits = [];
@@ -124,71 +164,99 @@ export default {
         var week = repoInfo.weekCommitStats[index];
         var weekDate = week.weekDate.split("T")[0];
         labels.push(weekDate);
-        commits.push(week.commitsCount / commitsModifier);
-        additionsLinesCount.push(week.additionsLinesCount / additionsModifier);
-        deletionsLinesCount.push(week.deletionsLinesCount / deletionsModifier);
-        newLinesCount.push(week.newLinesCount / newLinesModifier);
-        authorsCount.push(week.authorsCount / authorsModifier);
+        commits.push(week.commitsCount);
+        additionsLinesCount.push(week.additionsLinesCount);
+        deletionsLinesCount.push(-week.deletionsLinesCount);
+        if (week.newLinesCount < 0) {
+          week.newLinesCount = -week.newLinesCount;
+        }
+        newLinesCount.push(week.newLinesCount);
+        authorsCount.push(week.authorsCount);
       }
 
-      const ctx = document.getElementById("repoStatsChart").getContext("2d");
-      const myChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: "Commits",
-              data: commits,
-              borderColor: ["rgba(54, 162, 235, 1)"],
-            },
-            {
-              label: "Added lines",
-              data: additionsLinesCount,
-              borderColor: ["rgba(75, 192, 192, 1)"],
-            },
-            {
-              label: "Deleted lines",
-              data: deletionsLinesCount,
-              borderColor: ["rgba(255, 99, 132, 1)"],
-            },
-            {
-              label: "New lines",
-              data: newLinesCount,
-              borderColor: ["rgba(255, 206, 86, 1)"],
-            },
-            {
-              label: "Authors",
-              data: authorsCount,
-              borderColor: ["rgba(153, 102, 255, 1)"],
-            },
-            // {
-            //   label: "Commits",
-            //   data: [12, 19, 3, 5, 2, 3],
-            //   borderColor: [
-            //     "rgba(255, 99, 132, 1)",
-            //     "rgba(54, 162, 235, 1)",
-            //     "rgba(255, 206, 86, 1)",
-            //     "rgba(75, 192, 192, 1)",
-            //     "rgba(153, 102, 255, 1)",
-            //     "rgba(255, 159, 64, 1)",
-            //   ],
-            //   borderWidth: 1,
-            // },
-          ],
+      var chart = new window.CanvasJS.Chart("repoStatsChart", {
+        animationEnabled: true,
+        title: {
+          text: "Repo stats",
         },
-        options: {
-          scales: {
-            y: {
-              max: maxY,
-              min: minY,
-              display: false,
-            },
+        axisX: {},
+        axisY: {
+          valueFormatString: " ",
+        },
+        legend: {
+          cursor: "pointer",
+          fontSize: 16,
+        },
+        toolTip: {
+          shared: true,
+        },
+        zoomEnabled: true,
+        data: [
+          {
+            name: "Date",
+            type: "spline",
+            shoInLegend: false,
+            dataPoints: [],
           },
-        },
+          {
+            name: "Commits",
+            type: "spline",
+            dataPoints: [],
+          },
+          {
+            type: "spline",
+            name: "Added lines",
+            dataPoints: [],
+          },
+          {
+            type: "spline",
+            name: "Deleted lines",
+            dataPoints: [],
+          },
+          {
+            type: "spline",
+            name: "New lines",
+            dataPoints: [],
+          },
+          {
+            type: "spline",
+            name: "Authors",
+            dataPoints: [],
+          },
+        ],
       });
 
-      console.log(myChart);
+      addDataPoints();
+      chart.render();
+
+      function addDataPoints() {
+        for (var i = 0; i < labels.length; i++) {
+          chart.options.data[0].dataPoints.push({
+            x: i,
+            y: labels[i],
+          });
+          chart.options.data[1].dataPoints.push({
+            x: i,
+            y: commits[i],
+          });
+          chart.options.data[2].dataPoints.push({
+            x: i,
+            y: additionsLinesCount[i],
+          });
+          chart.options.data[3].dataPoints.push({
+            x: i,
+            y: deletionsLinesCount[i],
+          });
+          chart.options.data[4].dataPoints.push({
+            x: i,
+            y: newLinesCount[i],
+          });
+          chart.options.data[5].dataPoints.push({
+            x: i,
+            y: authorsCount[i],
+          });
+        }
+      }
     },
   },
 };

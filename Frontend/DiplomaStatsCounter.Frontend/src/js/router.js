@@ -10,6 +10,7 @@ import Main from '@/pages/Main';
 import GitHubUserStats from '@/pages/GitHubUserStats';
 import GitHubRepositories from '@/pages/GitHubRepositories';
 import GitHubRepositoryStats from '@/pages/GitHubRepositoryStats';
+import RegressionModel from '@/pages/RegressionModel'
 
 Vue.use(VueRouter)
 
@@ -32,6 +33,7 @@ addToRoute(Main);
 addToRoute(GitHubUserStats);
 addToRoute(GitHubRepositories);
 addToRoute(GitHubRepositoryStats);
+addToRoute(RegressionModel);
 
 VueHelpers.registerAllRoutes(routes);
 
