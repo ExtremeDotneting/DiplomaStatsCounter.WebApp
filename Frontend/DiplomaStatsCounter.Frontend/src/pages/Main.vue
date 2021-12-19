@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-page-comtainer fill-height">
     <v-toolbar color="primary" dark flat>
       <svg
         height="32"
@@ -19,15 +19,14 @@
 
       <v-spacer></v-spacer>
 
-      <v-btn text @click="logout">
+      {{ userName }}
+      <v-btn icon @click="logout">
         <v-icon color="icons">logout</v-icon>
-        Logout
       </v-btn>
 
       <template v-slot:extension>
-        <v-tabs v-model="tabNumber" align-with-title>
+        <v-tabs v-model="tabNumber" show-arrows fixed-tabs>
           <v-tabs-slider color="borders"></v-tabs-slider>
-
           <v-tab v-for="item in items" :key="item">
             {{ item }}
           </v-tab>
@@ -35,30 +34,53 @@
       </template>
     </v-toolbar>
 
-   <router-view></router-view>
+    <router-view></router-view>
   </div>
 </template>
 
+
+<style scoped>
+.main-page-comtainer {
+  background-color: var(--v-background-base);
+}
+</style>
+
 <script>
-import SignIn from "@/pages/SignIn";
 import Empty from "@/components/Empty";
 import Helpers from "../../libs/helpers";
 import VueHelpers from "../../libs/vueHelpers";
 import ApiClient from "../js/apiClient";
+import GitHubUserStats from "@/pages/GitHubUserStats";
+import GitHubRepositories from '@/pages/GitHubRepositories';
+import GitHubRepositoryStats from "@/pages/GitHubRepositoryStats"
 
 const MyDefinition = {
   name: "Main",
   isAuthRequired: true,
-  childRoutes: [SignIn, Empty],
-  mounted() {
+  childRoutes: [GitHubUserStats, GitHubRepositories, GitHubRepositoryStats, Empty],
+  created() {
     //Redirect to '/main/childRoutes[0]' in it's '/main'
-    //var innerComponentPath = VueHelpers.getVueComponentInfoByRoute(1);
-    
+    var currentComponent = VueHelpers.getVueComponentInfoByRoute(1);
+    if (currentComponent) {
+      var index = MyDefinition.childRoutes.findIndex(
+        (r) => r === currentComponent.component
+      );
+      console.log(index);
+      if (index > 0) this.tabNumber = index;
+    }
+    ApiClient.getMe().then((user) => {
+      this.userName = user.nickname;
+    });
   },
   data() {
     return {
-      items: ["web", "shopping", "videos", "images", "news"],
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+      userName: "",
+      items: [
+        "My account stats",
+        "My repositoryes",
+        "Repository stats",
+        "Regression model",
+      ],
     };
   },
   computed: {
@@ -72,10 +94,10 @@ const MyDefinition = {
         this._tabNumber = index;
         var myRouteDefinition =
           VueHelpers.getVueComponentInfoByComponent(MyDefinition);
-        var urlOfFirstTab =
-          myRouteDefinition.path + "/" + myRouteDefinition.children[index].path;
+        var urlOfFirstTab = myRouteDefinition.path + "/";
+        urlOfFirstTab = urlOfFirstTab + myRouteDefinition.children[index].path;
         console.log(urlOfFirstTab);
-        this.$router.push(urlOfFirstTab);
+        this.$router.lazyPush(urlOfFirstTab);
       },
     },
   },

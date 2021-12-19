@@ -16,12 +16,14 @@ using Newtonsoft.Json;
 using Octokit;
 using Telegram.Bot.CloudStorage;
 using TEMPLATE_APP.WebApp.Dto;
+using TEMPLATE_APP.WebApp.Models;
 using TEMPLATE_APP.WebApp.Services;
 
 namespace TEMPLATE_APP.WebApp.Controllers
 {
     [ApiController]
     [Authorize]
+    [SwaggerTagName("Github")]
     [Route(CommonConsts.ApiPath + "/github")]
     public class GithubController : ControllerBase
     {
@@ -34,24 +36,23 @@ namespace TEMPLATE_APP.WebApp.Controllers
             _statsService = statsService;
         }
 
-        [HttpGet("getRepositoryByUrl")]
-        public async Task<RepositoryShortInfo> GetRepositoryByUrl([FromQuery]string url)
+        [HttpPost("setUseInTeaching")]
+        public async Task<RepositoryModel> SetUseInTeaching([FromBody] SetUseInTeachingRequest req)
         {
-            url = url
-                .Replace("https://github.com/", "")
-                .Replace("http://github.com/", "");
-            var owner = url.Split("/")[0];
-            var name = url.Split("/")[1];
+            var currentUser = await this.GetCurrentUser();
+            var model = await _statsService.SetUseInTeaching(req.RepositoryId, currentUser, req.Value);
+            return model;
+        }
+
+        [HttpGet("getRepositoryByUrl")]
+        public async Task<RepositoryShortInfo> GetRepositoryByUrl([FromQuery] string url)
+        {
             var client = await ResolveMyClient();
-            var repo=await client.Repository.Get(owner, name);
-            var shortInfo = new RepositoryShortInfo()
-            {
-                Id = repo.Id,
-                Name = repo.Name
-            };
+            var currentUser = await this.GetCurrentUser();
+            var shortInfo = await _statsService.GetRepositoryByUrl(client, url, currentUser);
             return shortInfo;
         }
-        
+
         [HttpGet("getMe")]
         public async Task<Octokit.User> GetMe()
         {
@@ -63,7 +64,8 @@ namespace TEMPLATE_APP.WebApp.Controllers
         public async Task<IEnumerable<RepositoryShortInfo>> GetMyRepositories()
         {
             var client = await ResolveMyClient();
-            var shortInfoList = await _statsService.GetMyRepositories(client);
+            var currentUser = await this.GetCurrentUser();
+            var shortInfoList = await _statsService.GetMyRepositories(client, currentUser);
             return shortInfoList;
         }
 
@@ -71,7 +73,8 @@ namespace TEMPLATE_APP.WebApp.Controllers
         public async Task<RepositoryDetailedInfo> GetRepositoryInfo(long repositoryId)
         {
             var client = await ResolveMyClient();
-            var detailedInfo=await _statsService.GetRepositoryInfo(client, repositoryId);
+            var currentUser = await this.GetCurrentUser();
+            var detailedInfo = await _statsService.GetRepositoryInfo(client, repositoryId, currentUser);
             return detailedInfo;
         }
 
@@ -83,7 +86,7 @@ namespace TEMPLATE_APP.WebApp.Controllers
     }
 
 
-   
+
 
 
 }

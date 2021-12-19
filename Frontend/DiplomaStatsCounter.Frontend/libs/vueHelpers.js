@@ -7,14 +7,33 @@ class VueHelpersClass {
     routes = []
 
     registerAllRoutes(routes) {
-        for (var i = 0; i < routes.length; i++) {
-            var r = routes[i];
-            r.componentName = this.getComponentName(r.component);
-            r.path = "/" + r.path.split("/")[1];
-            this.routesByPath[r.path] = r;
-            this.routesByComponentName[r.componentName] = r;
+        var _this = this;
+        function addRoute(route, byComponentToo) {
+            if (byComponentToo)
+                _this.routesByComponentName[route.componentName] = route;
+            _this.routesByPath[route.path] = route;
+            _this.routes.push(route);
         }
-        this.routes = routes;
+        function registerRoutes(prefix, innerRoutes) {
+            if (!innerRoutes)
+                return;
+            for (var i in innerRoutes) {
+                var route = innerRoutes[i];
+                //Clonning
+                route = {
+                    component: route.component,
+                    path: route.path,
+                    children: route.children
+                };
+                route.componentName = _this.getComponentName(route.component);
+                var currentPrefix = route.path[0] === "/" ? prefix : prefix + "/";
+                route.path = currentPrefix + route.path;
+                addRoute(route, prefix === "");
+                registerRoutes(route.path, route.children);
+            }
+        }
+
+        registerRoutes("", routes);
     }
 
     getAllComponentsInfo() {
@@ -24,6 +43,7 @@ class VueHelpersClass {
     getVueComponentInfoByRoute(index = 0, pathname = window.location.pathname) {
         try {
             pathname = "/" + pathname.split("/")[index + 1];
+            pathname = pathname.split("?")[0];
         }
         catch (ex) {
             return null;
@@ -68,16 +88,16 @@ class VueHelpersClass {
             };
 
             if (component.childRoutes) {
-                //url = url + "/:nestedRoutes";
+                //url = url + "/:nestedRoutes";                
+                //newRoute.path = url;
                 var childRoutes = [];
                 for (var i in component.childRoutes) {
                     this.addComponentToRoutes(childRoutes, component.childRoutes[i], true);
                 }
                 newRoute.children = childRoutes;
-                newRoute.path = url;
             }
 
-            routes.push(newRoute)
+            routes.push(newRoute);
         } catch (ex) {
             console.error(ex);
         }

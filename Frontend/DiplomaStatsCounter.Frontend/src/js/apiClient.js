@@ -64,6 +64,31 @@ class ApiClientClass extends HttpClientClass {
         this._userCachedValue = user;
         return user;
     }
+
+    async github_getMyRepositories() {
+        var dto = await this.get("github/getMyRepositories");
+        return dto;
+    }
+
+    async github_getRepositoryInfo(repositoryId) {
+        repositoryId = repositoryId.AsType("number");
+        var dto = await this.get("github/getRepositoryInfo?repositoryId=" + repositoryId);
+        return dto;
+    }
+
+    async github_setUseInTeaching(repositoryId, value) {
+        var req = { repositoryId, value };
+        var dto = await this.post("github/setUseInTeaching", req);
+        return dto;
+    }
+
+    async github_getRepositoryByUrl(url) {
+        url = encodeURI(url);
+        var dto = await this.get("github/getRepositoryByUrl?url=" + url);
+        return dto;
+    }
+
+    
 }
 
 let ApiClient = new ApiClientClass();

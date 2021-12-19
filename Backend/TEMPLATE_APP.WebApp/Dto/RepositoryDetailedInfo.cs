@@ -36,10 +36,19 @@ namespace TEMPLATE_APP.WebApp.Dto
 
         public int PullRequestsCount { get; set; }
 
-        public int TotalCommits { get; set; }
+        public long TotalCommits { get; set; }
 
         [JsonProperty(Order = 1)] 
         public List<WeekStatistics> WeekCommitStats { get; set; }
 
+        public bool IsUsingInTeaching { get; set; }
+        public long TotalAdditionsLinesCount { get; set; }
+        public long TotalDeletionsLinesCount { get; set; }
+        public long TotalNewLinesCount { get; set; }
+        public long AverageAdditionsLinesCount { get; set; }
+        public long AverageDeletionsLinesCount { get; set; }
+        public long AverageNewLinesCount { get; set; }
+        public long AverageAuthorsCount { get; set; }
+        public long AverageCommitsCount { get; set; }
     }
 }

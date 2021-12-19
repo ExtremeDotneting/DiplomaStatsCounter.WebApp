@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using IRO.Storage;
+using IROFramework.Core.Models;
+using IROFramework.Core.Tools.AbstractDatabase;
 using Microsoft.Extensions.Logging;
 using Octokit;
 using TEMPLATE_APP.WebApp.Controllers;
 using TEMPLATE_APP.WebApp.Dto;
+using TEMPLATE_APP.WebApp.Models;
 
 namespace TEMPLATE_APP.WebApp.Services
 {
@@ -14,14 +17,16 @@ namespace TEMPLATE_APP.WebApp.Services
     {
         readonly ILogger _logger;
         readonly IKeyValueStorage _storage;
+        readonly IDatabaseSet<RepositoryModel, string> _repositoryDbSet;
 
-        public GithubStatsCounterService(ILogger<GithubStatsCounterService> logger, IKeyValueStorage storage)
+        public GithubStatsCounterService(ILogger<GithubStatsCounterService> logger, IKeyValueStorage storage, IAbstractDatabase db)
         {
+            _repositoryDbSet = db.GetDbSet<RepositoryModel, string>();
             _logger = logger;
             _storage = storage;
         }
 
-        public async Task<IEnumerable<RepositoryShortInfo>> GetMyRepositories(GitHubClient client)
+        public async Task<IEnumerable<RepositoryShortInfo>> GetMyRepositories(GitHubClient client, UserModel currentUser)
         {
             var repos = await client.Repository.GetAllForCurrent();
             var githubUser = await client.User.Current();
@@ -31,7 +36,9 @@ namespace TEMPLATE_APP.WebApp.Services
                 .Select(r => new RepositoryShortInfo()
                 {
                     Id = r.Id,
-                    Name = r.Name
+                    Name = r.Name,
+                    Language = r.Language ?? "Unknown",
+                    HtmlUrl=r.HtmlUrl
                 })
                 .ToList();
 
@@ -43,10 +50,13 @@ namespace TEMPLATE_APP.WebApp.Services
                     var orgRepos = await client.Repository.GetAllForOrg(org.Login);
                     foreach (var repo in orgRepos)
                     {
+
                         shortInfoList.Add(new RepositoryShortInfo()
                         {
                             Id = repo.Id,
-                            Name = repo.Name
+                            Name = repo.Name,
+                            Language = repo.Language ?? "Unknown",
+                            HtmlUrl = repo.HtmlUrl
                         });
                     }
                 }
@@ -56,18 +66,58 @@ namespace TEMPLATE_APP.WebApp.Services
                 _logger.LogError("Error fetching orgs info.", ex);
             }
 
+            foreach (var repo in shortInfoList)
+            {
+                var dbId = RepositoryModel.BuildId(currentUser.Id, repo.Id);
+                var repoFromDb = await _repositoryDbSet.TryGetByIdAsync(dbId);
+                repo.IsUsingInTeaching = repoFromDb?.IsUsingInTeaching == true;
+            }
+
             return shortInfoList;
         }
 
-        public async Task<RepositoryDetailedInfo> GetRepositoryInfo(GitHubClient client, long repositoryId)
+        public async Task<RepositoryModel> SetUseInTeaching(long repositoryId, UserModel currentUser, bool value)
+        {
+            var dbId = RepositoryModel.BuildId(currentUser.Id, repositoryId);
+            await _repositoryDbSet.UpdateAsync(new RepositoryModel()
+            {
+                GithubId = repositoryId,
+                OwnerUserId = currentUser.Id,
+                IsUsingInTeaching = value
+            });
+            return await _repositoryDbSet.GetByIdAsync(dbId);
+        }
+
+        public async Task<RepositoryShortInfo> GetRepositoryByUrl(GitHubClient client, string url,
+            UserModel currentUser)
+        {
+            url = url
+                .Replace("https://github.com/", "")
+                .Replace("http://github.com/", "");
+            var owner = url.Split("/")[0];
+            var name = url.Split("/")[1];
+            var repo = await client.Repository.Get(owner, name);
+            var dbId = RepositoryModel.BuildId(currentUser.Id, repo.Id);
+            var repoFromDb = await _repositoryDbSet.TryGetByIdAsync(dbId);
+
+            var shortInfo = new RepositoryShortInfo()
+            {
+                Id = repo.Id,
+                Name = repo.Name,
+                Language = repo.Language,
+                IsUsingInTeaching = repoFromDb?.IsUsingInTeaching == true
+            };
+            return shortInfo;
+        }
+
+        public async Task<RepositoryDetailedInfo> GetRepositoryInfo(GitHubClient client, long repositoryId, UserModel currentUser)
         {
             var key = $"repoDetailedInfo_{repositoryId}";
-            var detailedInfo=await _storage.GetOrDefault<RepositoryDetailedInfo>(key);
+            var detailedInfo = await _storage.GetOrDefault<RepositoryDetailedInfo>(key);
             if (detailedInfo == null)
             {
-                detailedInfo = await PrivateGetRepositoryInfo(client,repositoryId);
+                detailedInfo = await PrivateGetRepositoryInfo(client, repositoryId);
                 await _storage.Set(key, detailedInfo);
-                return detailedInfo;
             }
             else
             {
@@ -76,8 +126,13 @@ namespace TEMPLATE_APP.WebApp.Services
                     var newDetailedInfo = await PrivateGetRepositoryInfo(client, repositoryId);
                     await _storage.Set(key, newDetailedInfo);
                 });
-                return detailedInfo;
             }
+
+
+            var dbId = RepositoryModel.BuildId(currentUser.Id, repositoryId);
+            var repoFromDb = await _repositoryDbSet.TryGetByIdAsync(dbId);
+            detailedInfo.IsUsingInTeaching = repoFromDb?.IsUsingInTeaching == true;
+            return detailedInfo;
         }
 
         async Task<RepositoryDetailedInfo> PrivateGetRepositoryInfo(GitHubClient client, long repositoryId)
@@ -108,15 +163,18 @@ namespace TEMPLATE_APP.WebApp.Services
 
             var dict = new Dictionary<int, WeekStatistics>();
             var codeFrequency = await client.Repository.Statistics.GetCodeFrequency(repositoryId);
+    
             foreach (var week in codeFrequency.AdditionsAndDeletionsByWeek)
             {
                 var item = GetItem(dict, week.Timestamp.UtcDateTime);
                 item.AdditionsLinesCount = week.Additions;
                 item.DeletionsLinesCount = week.Deletions;
                 item.NewLinesCount = week.Additions + week.Deletions;
-
                 await FillCommitStatsForWeek(client, repositoryId, item);
+
+             
             }
+
 
             var sortedStats = dict
                 .Select(r => r.Value)
@@ -124,15 +182,38 @@ namespace TEMPLATE_APP.WebApp.Services
                 .OrderBy(r => r.WeekNumber)
                 .ToList();
 
-            var totalLines = 0;
-            var totalCommits = 0;
+            long totalLines = 0;
+            long totalCommits = 0;
+            long totalAdditionsLinesCount = 0;
+            long totalDeletionsLinesCount = 0;
+            long totalNewLinesCount = 0;
+            long totalAuthorsCount = 0;
             foreach (var item in sortedStats)
             {
                 totalLines += item.NewLinesCount;
                 item.TotalLinesCount = totalLines;
                 totalCommits += item.CommitsCount;
                 item.TotalCommitsCount = totalCommits;
+
+                totalAdditionsLinesCount += item.AdditionsLinesCount;
+                totalDeletionsLinesCount += item.DeletionsLinesCount;
+                totalNewLinesCount += item.NewLinesCount;
+                totalAuthorsCount += item.AuthorsCount;
             }
+            long averageAdditionsLinesCount = totalAdditionsLinesCount / sortedStats.Count;
+            long averageDeletionsLinesCount = totalDeletionsLinesCount / sortedStats.Count;
+            long averageNewLinesCount = totalNewLinesCount / sortedStats.Count;
+            long averageAuthorsCount = totalAuthorsCount / sortedStats.Count;
+            long averageCommitsCount = totalCommits / sortedStats.Count;
+
+            detailedInfo.TotalAdditionsLinesCount = totalAdditionsLinesCount;
+            detailedInfo.TotalDeletionsLinesCount = totalDeletionsLinesCount;
+            detailedInfo.TotalNewLinesCount = totalNewLinesCount;
+            detailedInfo.AverageAdditionsLinesCount = averageAdditionsLinesCount;
+            detailedInfo.AverageDeletionsLinesCount = averageDeletionsLinesCount;
+            detailedInfo.AverageNewLinesCount = averageNewLinesCount;
+            detailedInfo.AverageAuthorsCount = averageAuthorsCount;
+            detailedInfo.AverageCommitsCount = averageCommitsCount;
             detailedInfo.WeekCommitStats = sortedStats;
             detailedInfo.TotalCommits = sortedStats.Last().TotalCommitsCount;
 

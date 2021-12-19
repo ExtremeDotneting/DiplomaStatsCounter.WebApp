@@ -5,8 +5,11 @@ import AllPagesLinks from "@/components/AllPagesLinks";
 import DialogForm from "@/components/DialogForm";
 import Empty from '@/components/Empty'
 import VueHelpers from '../../libs/vueHelpers';
-import CallbackProcessing from '@/components/CallbackProcessing'
-import Main from '@/pages/Main'
+import CallbackProcessing from '@/components/CallbackProcessing';
+import Main from '@/pages/Main';
+import GitHubUserStats from '@/pages/GitHubUserStats';
+import GitHubRepositories from '@/pages/GitHubRepositories';
+import GitHubRepositoryStats from '@/pages/GitHubRepositoryStats';
 
 Vue.use(VueRouter)
 
@@ -26,6 +29,9 @@ addToRoute(AllPagesLinks);
 addToRoute(DialogForm);
 addToRoute(CallbackProcessing);
 addToRoute(Main);
+addToRoute(GitHubUserStats);
+addToRoute(GitHubRepositories);
+addToRoute(GitHubRepositoryStats);
 
 VueHelpers.registerAllRoutes(routes);
 
@@ -37,6 +43,14 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes
 })
+
+router.lazyPush = function (path) {
+  if (this.currentRoute.path === path) {
+    return;
+  }
+  this.push(path);
+}
+
 //router.replace({ path: '', redirect: '/index' });
 
 export default router

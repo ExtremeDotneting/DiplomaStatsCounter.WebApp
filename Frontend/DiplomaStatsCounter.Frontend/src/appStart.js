@@ -6,15 +6,17 @@ import 'roboto-fontface/css/roboto/roboto-fontface.css';
 import '@mdi/font/css/materialdesignicons.css';
 import router from '@/js/router';
 import './main.css';
-import Helpers from "../libs/helpers.js"
+//import Helpers from "../libs/helpers.js"
+import { Chart, registerables } from 'chart.js';
+
 
 function appStart() {
   try {
-    Helpers.setZoom(0.7);
+    //Helpers.setZoom(0.7);
   } catch (ex) {
     console.error(ex);
   }
-
+  Chart.register(...registerables);
   Vue.config.productionTip = false
   window["VueApp"] = new Vue({
     vuetify,
