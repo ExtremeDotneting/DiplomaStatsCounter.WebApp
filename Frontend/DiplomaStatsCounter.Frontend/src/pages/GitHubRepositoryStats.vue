@@ -12,6 +12,8 @@
         </div>
 
         <div v-if="repoLoaded">
+          <p id="statsStrEl"></p>
+
           <v-btn
             small
             outlined
@@ -21,6 +23,7 @@
           >
             {{ getIsUsedInTrainingText(repoInfo) }}
           </v-btn>
+          <h1 class="text-center">Info</h1>
           <h4>Id: {{ repoInfo.id }}</h4>
           <h4>Name: {{ repoInfo.name }}</h4>
           <h4>
@@ -30,14 +33,47 @@
             }}</a>
           </h4>
           <h4>Language: {{ repoInfo.language }}</h4>
-          <h4>Total commits: {{ repoInfo.totalCommits }}</h4>
           <h4>Pull request: {{ repoInfo.pullRequestsCount }}</h4>
           <h4>Opened issue: {{ repoInfo.openIssuesCount }}</h4>
           <h4>Total issue: {{ repoInfo.issuesCount }}</h4>
           <h4>Forks: {{ repoInfo.forksCount }}</h4>
           <h4>Watchers: {{ repoInfo.watchersCount }}</h4>
           <h4>Size: {{ repoInfo.size }} bytes</h4>
-
+          <br />
+          <v-divider></v-divider>
+          <br />
+          <h1 class="text-center">Stats</h1>
+          <h4>Total commits: {{ repoInfo.totalCommits }}</h4>
+          <h4>
+            Total added lines: {{ repoInfo.totalAdditionsLinesCount }} bytes
+          </h4>
+          <h4>
+            Total deleted lines: {{ -repoInfo.totalDeletionsLinesCount }} bytes
+          </h4>
+          <h4>Total deleted lines: {{ repoInfo.totalNewLinesCount }} bytes</h4>
+          <h4>
+            Monthly average commits:
+            {{ repoInfo.averageCommitsCount * 4 }} bytes
+          </h4>
+          <h4>
+            Monthly average added lines:
+            {{ repoInfo.averageAdditionsLinesCount * 4 }} bytes
+          </h4>
+          <h4>
+            Monthly average deleted lines:
+            {{ -repoInfo.averageDeletionsLinesCount * 4 }} bytes
+          </h4>
+          <h4>
+            Monthly average deleted lines:
+            {{ repoInfo.averageNewLinesCount * 4 }} bytes
+          </h4>
+          <h4>
+            Monthly average authors:
+            {{ repoInfo.averageAuthorsCount * 2 }} bytes
+          </h4>
+          <br />
+          <v-divider></v-divider>
+          <br />
           <div id="repoStatsChart" style="height: 370px; width: 100%"></div>
         </div>
       </v-card-text>
@@ -62,6 +98,7 @@ export default {
     var repoInfo = await ApiClient.github_getRepositoryInfo(repoShortInfo.id);
     this.repoInfo = repoInfo;
     this.initChart(this.repoInfo);
+    //this.addStatsString(this.repoInfo);
   },
   data() {
     return {
@@ -137,6 +174,35 @@ export default {
         Helpers.redirect(url);
       }
     },
+    addStatsString(repoInfo) {
+      var splitter = "\t";
+      var str =
+        repoInfo.name +
+        splitter +
+        repoInfo.htmlUrl +
+        splitter +
+        repoInfo.totalCommits +
+        splitter +
+        repoInfo.totalAdditionsLinesCount +
+        splitter +
+        -repoInfo.totalDeletionsLinesCount +
+        splitter +
+        repoInfo.totalNewLinesCount;
+      str +=
+        splitter +
+        repoInfo.averageCommitsCount * 4 +
+        splitter +
+        repoInfo.averageAdditionsLinesCount * 4 +
+        splitter +
+        -repoInfo.averageDeletionsLinesCount * 4 +
+        splitter +
+        repoInfo.averageNewLinesCount * 4 +
+        splitter +
+        repoInfo.averageAuthorsCount * 2;
+      var statsStrEl = document.getElementById("statsStrEl");
+      statsStrEl.innerHTML = str;
+      navigator.clipboard.writeText(str);
+    },
     initChart(repoInfo) {
       //       averageAdditionsLinesCount: 0,
       // averageDeletionsLinesCount: 0,
@@ -177,7 +243,7 @@ export default {
       var chart = new window.CanvasJS.Chart("repoStatsChart", {
         animationEnabled: true,
         title: {
-          text: "Repo stats",
+          text: "Repo stats chart",
         },
         axisX: {},
         axisY: {

@@ -2,6 +2,10 @@
   <v-container>
     <v-card>
       <v-card-text>
+        <v-tabs fixed-tabs background-color="white" color="primary">
+          <v-tab @click="loadMyRepos()"> My repos </v-tab>
+          <v-tab @click="loadReposUsedInTeaching()"> Used in teaching </v-tab>
+        </v-tabs>
         <v-list dense>
           <v-subheader>Repos</v-subheader>
           <div v-for="(item, i) in items" :key="i">
@@ -17,17 +21,18 @@
                   }}</a>
                   <br />
                   <br />
-                  <v-btn
-                    x-small
-                    class="mx-2"
-                    outlined
-                    color="primary"
-                    rounded
-                    @click="openStatisticksClick(item)"
+                  <a :href="getOpenStatisticksUrl(item)">
+                    <v-btn
+                      x-small
+                      class="mx-2"
+                      outlined
+                      color="primary"
+                      rounded
+                    >
+                      <v-icon>timeline</v-icon>
+                      Open statistics
+                    </v-btn></a
                   >
-                    <v-icon>timeline</v-icon>
-                    Open statistics
-                  </v-btn>
                   <v-btn
                     x-small
                     class="mx-2"
@@ -53,23 +58,29 @@
 <script>
 import ApiClient from "../js/apiClient";
 import Consts from "../js/consts";
-import Helpers from "../../libs/helpers"
 
 export default {
   name: "GitHubRepositories",
   async created() {
-    var repos = await ApiClient.github_getMyRepositories();
-    this.items = repos;
+    await this.loadMyRepos();
   },
   data() {
     return {
       selectedItem: 1,
-      items: [
-        { name: "Loading...", language: "Loading..." },
-      ],
+      items: [{ name: "Loading...", language: "Loading..." }],
     };
   },
   methods: {
+    async loadMyRepos() {
+      this.items = [{ name: "Loading...", language: "Loading..." }];
+      var repos = await ApiClient.github_getMyRepositories();
+      this.items = repos;
+    },
+    async loadReposUsedInTeaching() {
+      this.items = [{ name: "Loading...", language: "Loading..." }];
+      var repos = await ApiClient.github_getRepositoriesUsedInTeaching();
+      this.items = repos;
+    },
     getRepoItemSubtitle(item) {
       return item.language + " | " + item.htmlUrl;
     },
@@ -87,9 +98,9 @@ export default {
         return "#d18800";
       }
     },
-    openStatisticksClick(item) {
+    getOpenStatisticksUrl(item) {
       var url = Consts.RepositoryStats + "?repo_url=" + encodeURI(item.htmlUrl);
-      Helpers.redirect(url);
+      return url;
     },
     async swithcUseInTraining(item) {
       item.isUsingInTeaching = !item.isUsingInTeaching;

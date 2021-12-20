@@ -1,1 +1,2 @@
 import './dialogTests'
+import './reposStatsTests'

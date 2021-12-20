@@ -38,7 +38,7 @@ namespace TEMPLATE_APP.WebApp.Services
                     Id = r.Id,
                     Name = r.Name,
                     Language = r.Language ?? "Unknown",
-                    HtmlUrl=r.HtmlUrl
+                    HtmlUrl = r.HtmlUrl
                 })
                 .ToList();
 
@@ -74,6 +74,34 @@ namespace TEMPLATE_APP.WebApp.Services
             }
 
             return shortInfoList;
+        }
+
+        public async Task<IEnumerable<RepositoryShortInfo>> GetRepositoriesUsedInTeaching(GitHubClient client, UserModel currentUser)
+        {
+            var reposFromDb = await _repositoryDbSet.GetByPropertyAsync(r=>r.OwnerUserId, currentUser.Id);
+            reposFromDb = reposFromDb.Where(r => r.IsUsingInTeaching);
+            var reposShortInfo = new List<RepositoryShortInfo>();
+            foreach (var repoFromDb in reposFromDb)
+            {
+                try
+                {
+                    var repoGithub = await client.Repository.Get(repoFromDb.GithubId);
+                    var shortInfo = new RepositoryShortInfo()
+                    {
+                        Id = repoGithub.Id,
+                        HtmlUrl = repoGithub.HtmlUrl,
+                        Language = repoGithub.Language,
+                        Name = repoGithub.Name,
+                        IsUsingInTeaching = repoFromDb.IsUsingInTeaching
+                    };
+                    reposShortInfo.Add(shortInfo);
+                }
+                catch
+                {
+
+                }
+            }
+            return reposShortInfo;
         }
 
         public async Task<RepositoryModel> SetUseInTeaching(long repositoryId, UserModel currentUser, bool value)

@@ -70,6 +70,11 @@ class ApiClientClass extends HttpClientClass {
         return dto;
     }
 
+    async github_getRepositoriesUsedInTeaching() {
+        var dto = await this.get("github/getRepositoriesUsedInTeaching");
+        return dto;
+    }
+
     async github_getRepositoryInfo(repositoryId) {
         repositoryId = repositoryId.AsType("number");
         var dto = await this.get("github/getRepositoryInfo?repositoryId=" + repositoryId);
@@ -88,7 +93,7 @@ class ApiClientClass extends HttpClientClass {
         return dto;
     }
 
-    
+
 }
 
 let ApiClient = new ApiClientClass();

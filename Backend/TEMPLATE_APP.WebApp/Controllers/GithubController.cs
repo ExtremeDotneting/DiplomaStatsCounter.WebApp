@@ -69,6 +69,15 @@ namespace TEMPLATE_APP.WebApp.Controllers
             return shortInfoList;
         }
 
+        [HttpGet("getRepositoriesUsedInTeaching")]
+        public async Task<IEnumerable<RepositoryShortInfo>> GetRepositoriesUsedInTeaching()
+        {
+            var client = await ResolveMyClient();
+            var currentUser = await this.GetCurrentUser();
+            var shortInfoList = await _statsService.GetRepositoriesUsedInTeaching(client, currentUser);
+            return shortInfoList;
+        }
+
         [HttpGet("getRepositoryInfo")]
         public async Task<RepositoryDetailedInfo> GetRepositoryInfo(long repositoryId)
         {
