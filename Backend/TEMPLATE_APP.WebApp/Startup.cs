@@ -118,6 +118,8 @@ namespace TEMPLATE_APP
                 endpoints.MapControllers();
             });
             #endregion
+
+            MathTests.Run();
         }
 
     }
