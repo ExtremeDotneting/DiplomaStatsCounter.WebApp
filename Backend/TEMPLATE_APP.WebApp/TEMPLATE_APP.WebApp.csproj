@@ -22,11 +22,6 @@
     <None Remove="Options\**" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <PackageReference Include="Accord.Statistics" Version="3.8.0" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\IROFramework\IROFramework.Web\IROFramework.Web.csproj" />
   </ItemGroup>

@@ -119,7 +119,6 @@ namespace TEMPLATE_APP
             });
             #endregion
 
-            MathTests.Run();
         }
 
     }

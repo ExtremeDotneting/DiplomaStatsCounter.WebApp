@@ -87,6 +87,7 @@ import ApiClient from "../js/apiClient";
 import Consts from "../js/consts";
 
 export default {
+  isPage: true,
   name: "GitHubRepositoryStats",
   async created() {
     var repoUrl = Helpers.getUrlParameter("repo_url");

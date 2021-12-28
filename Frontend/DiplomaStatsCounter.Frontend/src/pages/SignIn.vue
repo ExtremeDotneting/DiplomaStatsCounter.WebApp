@@ -77,7 +77,9 @@ import Helpers from "../../libs/helpers.js";
 import ApiClient from "@/js/apiClient";
 import AppConfigs from "../../libs/appConfigsImport/configsImporter.js";
 
-export default {  
+export default {
+  isPage: true,
+  name: "SignIn",
   data() {
     var isOAuthEnabled = AppConfigs.Auth.GithubAuthEnabled;
 

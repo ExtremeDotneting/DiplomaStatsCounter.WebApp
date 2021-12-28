@@ -55,6 +55,7 @@ import GitHubRepositoryStats from "@/pages/GitHubRepositoryStats"
 import RegressionModel from '@/pages/RegressionModel'
 
 const MyDefinition = {
+  isPage: true,
   name: "Main",
   isAuthRequired: true,
   childRoutes: [GitHubUserStats, GitHubRepositories, GitHubRepositoryStats, RegressionModel],

@@ -7,7 +7,7 @@
           <v-tab @click="loadReposUsedInTeaching()"> Used in teaching </v-tab>
         </v-tabs>
         <v-list dense>
-          <v-subheader>Repos</v-subheader>
+          <v-subheader>{{Number(items.length)}} Repos</v-subheader>
           <div v-for="(item, i) in items" :key="i">
             <v-list-item>
               <!-- <v-list-item-icon>{{ item.language }} </v-list-item-icon> -->
@@ -60,6 +60,7 @@ import ApiClient from "../js/apiClient";
 import Consts from "../js/consts";
 
 export default {
+  isPage: true,
   name: "GitHubRepositories",
   async created() {
     await this.loadMyRepos();

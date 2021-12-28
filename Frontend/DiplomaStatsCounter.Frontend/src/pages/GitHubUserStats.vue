@@ -16,6 +16,7 @@
 import ApiClient from "../js/apiClient";
 
 export default {
+  isPage: true,
   name: "GitHubUserStats",
   async created() {
     var user = await ApiClient.getMe();

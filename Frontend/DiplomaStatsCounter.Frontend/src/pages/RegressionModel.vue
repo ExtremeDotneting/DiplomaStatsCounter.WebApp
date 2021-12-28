@@ -7,7 +7,6 @@
       style="width: 100px; margin-left: 50px"
       v-model="x1"
     ></v-text-field>
-
     <h3 class="comments-str">// Spend work hours.</h3>
     <h3 style="position: fixed; width: 100px">x2 =</h3>
     <v-text-field
@@ -16,9 +15,15 @@
       style="width: 100px; margin-left: 50px"
     ></v-text-field>
 
+    <h3 class="comments-str">
+      // Count of projects used in regression model calculation.
+    </h3>
+    <h3>n = {{ n }}</h3>
+    <br />
     <h3 class="comments-str">// Error coefficient.</h3>
     <h3>ε = 0.05</h3>
 
+    <br />
     <h3 class="comments-str">
       // Calculate output total lines of code (PROJECT SIZE) using regression
       model.
@@ -27,6 +32,7 @@
 
     <h3>Y = 10^(ε+1.04+{{ x1 }}^0.04+{{ x2 }}^0.25)</h3>
     <h3>Y = {{ recalculate().predicted_y }}</h3>
+    <br />
     <br />
     <h3 class="comments-str">// Calculate intervals.</h3>
     <h3>
@@ -49,14 +55,20 @@
 </style>
 
 <script>
+import ApiClient from "../js/apiClient";
+
 export default {
+  isPage: true,
   name: "RegressionModel",
-  mounted() {},
+  async mounted() {
+    this.n = await ApiClient.github_getRepositoriesUsedInTeachingCount();
+  },
   data() {
     return {
       x1: 1,
       x2: 2,
       Y: 0,
+      n: 1,
     };
   },
   methods: {
@@ -74,7 +86,7 @@ export default {
       var pow = Math.pow;
 
       //var Z = 16305.54;
-      var student = 2.35183518; // Коеф. Стьюдента
+      var student = 2.35183518*Math.log10(this.n/*Magic*/); // Коеф. Стьюдента
 
       var predicted_y = pow(10, epsilon + 1.04 + pow(x1, 0.04) + pow(x2, 0.25)); //Предсказаное Y
       // var SZY = 0.120810582; // сумма квадратов разностей y

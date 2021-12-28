@@ -70,9 +70,20 @@ class ApiClientClass extends HttpClientClass {
         return dto;
     }
 
+    async github_getRepositoriesUsedInTeachingCount() {
+        var repos = await this.github_getRepositoriesUsedInTeaching();
+        return repos.length;
+    }
+
     async github_getRepositoriesUsedInTeaching() {
-        var dto = await this.get("github/getRepositoriesUsedInTeaching");
-        return dto;
+        var repos = KeyValueStorage.tryGet("Used_in_teaching_repos");
+        if (!repos) {
+            repos = [];
+        }
+        this.get("github/getRepositoriesUsedInTeaching").then((res) => {
+            KeyValueStorage.set("Used_in_teaching_repos", res);
+        });
+        return repos;
     }
 
     async github_getRepositoryInfo(repositoryId) {

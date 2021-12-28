@@ -71,10 +71,8 @@ class VueHelpersClass {
             var prefix = isChild ? "" : "/";
 
             var url = prefix + "comp_";
-            if (component.__file) {
-                if (component.__file.startsWith("src/pages")) {
-                    url = prefix;
-                }
+            if (component.isPage) {
+                url = prefix;
             }
             var compName = this.getComponentName(component);
             compName = compName[0].toLowerCase() + compName.substr(1);
