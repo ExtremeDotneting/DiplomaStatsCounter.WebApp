@@ -23,6 +23,11 @@
     <h3 class="comments-str">// Error coefficient.</h3>
     <h3>ε = 0.05</h3>
 
+
+    <!-- <h3>Y = = b0 + x1 * b1 + x2 * b2</h3>
+    <h3>Y = {{ recalculate().predictet_y2 }}</h3> 
+    <br />
+    <br /> -->
     <br />
     <h3 class="comments-str">
       // Calculate output total lines of code (PROJECT SIZE) using regression
@@ -84,13 +89,18 @@ export default {
       //var sqrt = Math.sqrt;
       //var abs = Math.abs;
       var pow = Math.pow;
+      var e=2.71;
 
       //var Z = 16305.54;
-      var student = 2.35183518*Math.log10(this.n/*Magic*/); // Коеф. Стьюдента
+      var student = 2.35183518 * Math.log10(this.n /*Magic*/); // Коеф. Стьюдента
 
-      var predicted_y = pow(10, epsilon + 1.04 + pow(x1, 0.04) + pow(x2, 0.25)); //Предсказаное Y
+      var predicted_y = pow(e, epsilon + 1.04 + pow(x1, 0.04) + pow(x2, 0.25)); //Предсказаное Y
       // var SZY = 0.120810582; // сумма квадратов разностей y
       // var SZX1 = 0.4378559; // сумма квадратов разницы x1 ????
+      // var b0 = 1.6653;
+      // var b1 = 0.5552;
+      // var b2 = 0.0336;
+      // var predictet_y2 = b0 + x1 * b1 + x2 * b2;
 
       var trustedLastPart = 6240.073;
       var predictedLastPart = 86822.572;
