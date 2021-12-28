@@ -39,11 +39,7 @@
     </h3>
     <br />
     <br />
-    <p>
-      <a href="./resources/intervals_calc.xlsx" download>
-        <img src="../assets/download_calc.png" width="300" />
-      </a></p
-  ></v-container>
+  </v-container>
 </template>
 
 <style scoped>
