@@ -1,55 +1,21 @@
 <template>
   <v-container>
-    <h3 class="comments-str">// Commits done from start.</h3>
-    <h3 style="position: fixed; width: 100px">x1 =</h3>
+    <h3 class="comments-str">// Developers.</h3>
+    <h3 style="width: 100px">x1 =</h3>
     <v-text-field
       outlined
       style="width: 100px; margin-left: 50px"
       v-model="x1"
     ></v-text-field>
-    <h3 class="comments-str">// Spend work hours.</h3>
-    <h3 style="position: fixed; width: 100px">x2 =</h3>
+    <h3 class="comments-str">// Commits done from the start.</h3>
+    <h3 style="width: 100px">x2 =</h3>
     <v-text-field
       outlined
       v-model="x2"
       style="width: 100px; margin-left: 50px"
     ></v-text-field>
 
-    <h3 class="comments-str">
-      // Count of projects used in regression model calculation.
-    </h3>
-    <h3>n = {{ n }}</h3>
-    <br />
-    <h3 class="comments-str">// Error coefficient.</h3>
-    <h3>ε = 0.05</h3>
-
-
-    <!-- <h3>Y = = b0 + x1 * b1 + x2 * b2</h3>
-    <h3>Y = {{ recalculate().predictet_y2 }}</h3> 
-    <br />
-    <br /> -->
-    <br />
-    <h3 class="comments-str">
-      // Calculate output total lines of code (PROJECT SIZE) using regression
-      model.
-    </h3>
-    <img src="../assets/formula1.png" />
-
-    <h3>Y = 10^(ε+1.04+{{ x1 }}^0.04+{{ x2 }}^0.25)</h3>
-    <h3>Y = {{ recalculate().predicted_y }}</h3>
-    <br />
-    <br />
-    <h3 class="comments-str">// Calculate intervals.</h3>
-    <h3>
-      {{ recalculate().trustInterval_Left }} &gt; Trusted_Interval &gt;
-      {{ recalculate().trustInterval_Right }}
-    </h3>
-    <h3>
-      {{ recalculate().predictedInterval_Left }} &gt; Predicted_Interval &gt;
-      {{ recalculate().predictedInterval_Right }}
-    </h3>
-    <br />
-    <br />
+    <h3 id="regressionTextHere">{{ recalculate() }}</h3>
   </v-container>
 </template>
 
@@ -84,43 +50,50 @@ export default {
     recalculate() {
       var x1 = Number(this.x1);
       var x2 = Number(this.x2);
-      var epsilon = 0.05;
+      var pred_Y = 704.70595 * x1 - 185.60974 * x2 + 17390.2848;
 
-      //var sqrt = Math.sqrt;
-      //var abs = Math.abs;
+      var e = 2.71;
       var pow = Math.pow;
-      var e=2.71;
+      //pred_Y = pow(e, pow(x1, 0.22295) * +pow(x2, 0.53383) + 8.78911);
 
-      //var Z = 16305.54;
-      var student = 2.35183518 * Math.log10(this.n /*Magic*/); // Коеф. Стьюдента
+      pred_Y = pow(e, 8.78911) + x1 + pow(e, 0.22295) + x2 * pow(e, 0.53383);
 
-      var predicted_y = pow(e, epsilon + 1.04 + pow(x1, 0.04) + pow(x2, 0.25)); //Предсказаное Y
-      // var SZY = 0.120810582; // сумма квадратов разностей y
-      // var SZX1 = 0.4378559; // сумма квадратов разницы x1 ????
-      // var b0 = 1.6653;
-      // var b1 = 0.5552;
-      // var b2 = 0.0336;
-      // var predictet_y2 = b0 + x1 * b1 + x2 * b2;
+      var outputText =
+        `
+ŷ = b1 * X1 + b2 * X2 + a
+ŷ = -4402.58831 * X1 + 45.16752 * X2 + 53537.85546
+ŷ = ` +
+        pred_Y +
+        `
 
-      var trustedLastPart = 6240.073;
-      var predictedLastPart = 86822.572;
+-------------------------------------------------
 
-      var trustInterval_Left = predicted_y - student * trustedLastPart; //доверительный лев. гр.
+Calculation Summary
+Sum of X1 = 428
+Sum of X2 = 159655
+Sum of Y = 7147199
+Mean X1 = 12.5882
+Mean X2 = 4695.7353
+Mean Y = 210211.7353
+Sum of squares (SSX1) = 2526.2353
+Sum of squares (SSX2) = 345670324.6176
+Sum of products (SPX1Y) = 7621745.2941
+Sum of products (SPX2Y) = 13786073598.6176
+Sum of products (SPX1X2) = 414982.2941
 
-      var trustInterval_Right = predicted_y + student * trustedLastPart; //доверительный прав. гр.
+Regression Equation = ŷ = b1X1 + b2X2 + a
 
-      var predictedInterval_Left = predicted_y - student * predictedLastPart; //предсказательный лев. гр.
+b1 = ((SPX1Y)*(SSX2)-(SPX1X2)*(SPX2Y)) / ((SSX1)*(SSX2)-(SPX1X2)*(SPX1X2)) = -3086365278858410/701034269747.06 = -4402.58831
 
-      var predictedInterval_Right = predicted_y + student * predictedLastPart; //предсказательный прав. гр.
+b2 = ((SPX2Y)*(SSX1)-(SPX1X2)*(SPX1Y)) / ((SSX1)*(SSX2)-(SPX1X2)*(SPX1X2)) = 31663976344798.1/701034269747.06 = 45.16752
 
-      var res = {
-        predicted_y,
-        trustInterval_Left,
-        trustInterval_Right,
-        predictedInterval_Left,
-        predictedInterval_Right,
-      };
-      return res;
+a = MY - b1MX1 - b2MX2 = 210211.74 - (-4402.59*12.59) - (45.17*4695.74) = 53537.85546
+`;
+
+      outputText = outputText.replaceAll("\n", "<br>");
+
+      var textEl = document.getElementById("regressionTextHere");
+      if (textEl) textEl.innerHTML = outputText;
     },
   },
 };
