@@ -17,12 +17,7 @@
     ></v-text-field>
 
     <h3 class="comments-str">// Error coefficient.</h3>
-    <h3 style="position: fixed; width: 100px">ε =</h3>
-    <v-text-field
-      outlined
-      v-model="epsilon"
-      style="width: 100px; margin-left: 50px"
-    ></v-text-field>
+    <h3>ε = 0.05</h3>
 
     <h3 class="comments-str">
       // Calculate output total lines of code (PROJECT SIZE) using regression
@@ -44,8 +39,11 @@
     </h3>
     <br />
     <br />
-    <img src="../assets/download_calc.png" width="300" />
-  </v-container>
+    <p>
+      <a href="./resources/intervals_calc.xlsx" download>
+        <img src="../assets/download_calc.png" width="300" />
+      </a></p
+  ></v-container>
 </template>
 
 <style scoped>
@@ -63,7 +61,6 @@ export default {
       x1: 1,
       x2: 2,
       Y: 0,
-      epsilon: 0.01,
     };
   },
   methods: {
@@ -74,30 +71,29 @@ export default {
     recalculate() {
       var x1 = Number(this.x1);
       var x2 = Number(this.x2);
-      var epsilon = Number(this.epsilon);
+      var epsilon = 0.05;
 
-      var sqrt = Math.sqrt;
-      var abs = Math.abs;
+      //var sqrt = Math.sqrt;
+      //var abs = Math.abs;
       var pow = Math.pow;
 
-      var Z = abs(3.479 - epsilon * x1 - 0.004 * x2);
+      //var Z = 16305.54;
       var student = 2.35183518; // Коеф. Стьюдента
-      var SZY = 0.120810582; // сумма квадратов разностей y
-      var SZX1 = 0.4378559; // сумма квадратов разницы x1 ????
 
       var predicted_y = pow(10, epsilon + 1.04 + pow(x1, 0.04) + pow(x2, 0.25)); //Предсказаное Y
+      // var SZY = 0.120810582; // сумма квадратов разностей y
+      // var SZX1 = 0.4378559; // сумма квадратов разницы x1 ????
 
-      var trustInterval_Left =
-        predicted_y - student * SZY * sqrt(1 / 32 + Z / SZX1); //доверительный лев. гр.
+      var trustedLastPart = 6240.073;
+      var predictedLastPart = 86822.572;
 
-      var trustInterval_Right =
-        predicted_y + student * SZY * sqrt(1 / 32 + Z / SZX1); //доверительный прав. гр.
+      var trustInterval_Left = predicted_y - student * trustedLastPart; //доверительный лев. гр.
 
-      var predictedInterval_Left =
-        predicted_y - student * SZY * sqrt(1 + 1 / 32 + Z / SZX1); //предсказательный лев. гр.
+      var trustInterval_Right = predicted_y + student * trustedLastPart; //доверительный прав. гр.
 
-      var predictedInterval_Right =
-        predicted_y + student * SZY * sqrt(1 + 1 / 32 + Z / SZX1); //предсказательный прав. гр.
+      var predictedInterval_Left = predicted_y - student * predictedLastPart; //предсказательный лев. гр.
+
+      var predictedInterval_Right = predicted_y + student * predictedLastPart; //предсказательный прав. гр.
 
       var res = {
         predicted_y,
