@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" id="viewport" content="width=device-width,initial-scale=1.0,user-scalable=0">
+    <script src="data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+    <script src="grnn.js"></script>
+
+
+<body>
+    <script>
+        var train_x = [],
+            train_y = Lines;
+        var grnn = GRNN;
+        for (var i = 0; i < Lines.length; i++) {
+            train_x.push([Commits[i], Devs[i]]);
+        }
+
+        var sigma = 0.01,
+            normalize = true;
+        const gr = new grnn(train_x, train_y, sigma, normalize, train_x, train_y);
+
+        for (var i = 0; i < Lines.length; i++) {
+            var pred = gr.predict([Commits[i]+10, Devs[i]+10]);
+            var real = train_y[i];
+            console.log(pred + "  |  " + real);
+        }
+        // const mse = gr.mse();
+        // console.log("Prediction:  " + pred);
+        // console.log("MSE:  " + mse);
+        // console.log("Optimal Value of Sigma:  " + gr.optimal_sigma);
+        // console.log("Predicted Values against Test:  " + gr.ypred);
+    </script>
+
+    <script>
+
+    </script>
+</body>
+
+</html>

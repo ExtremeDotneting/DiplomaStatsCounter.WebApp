@@ -7,7 +7,7 @@
       style="width: 100px; margin-left: 50px"
       v-model="x1"
     ></v-text-field>
-    <h3 class="comments-str">// Commits done from the start.</h3>
+    <h3 class="comments-str">// Lines.</h3>
     <h3 style="width: 100px">x2 =</h3>
     <v-text-field
       outlined
@@ -50,16 +50,10 @@ export default {
     recalculate() {
       var x1 = Number(this.x1);
       var x2 = Number(this.x2);
-      var pred_Y = 704.70595 * x1 - 185.60974 * x2 + 17390.2848;
-
-      var e = 2.71;
-      var pow = Math.pow;
-      //pred_Y = pow(e, pow(x1, 0.22295) * +pow(x2, 0.53383) + 8.78911);
-
-      pred_Y = pow(e, 8.78911) + x1 + pow(e, 0.22295) + x2 * pow(e, 0.53383);
+      var pred_Y = 0.00153 * x1 +170.46263 * x2 +2159.658;
 
       var outputText =
-        `
+        `ŷ = X1 + X2 + 2159.658
 ŷ = b1 * X1 + b2 * X2 + a
 ŷ = -4402.58831 * X1 + 45.16752 * X2 + 53537.85546
 ŷ = ` +
