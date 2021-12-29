@@ -1,13 +1,13 @@
 <template>
   <v-container>
-    <h3 class="comments-str">// Developers.</h3>
+    <h3 class="comments-str">// Devs.</h3>
     <h3 style="width: 100px">x1 =</h3>
     <v-text-field
       outlined
       style="width: 100px; margin-left: 50px"
       v-model="x1"
     ></v-text-field>
-    <h3 class="comments-str">// Lines.</h3>
+    <h3 class="comments-str">// Commits made from the start.</h3>
     <h3 style="width: 100px">x2 =</h3>
     <v-text-field
       outlined
@@ -50,7 +50,19 @@ export default {
     recalculate() {
       var x1 = Number(this.x1);
       var x2 = Number(this.x2);
-      var pred_Y = 0.00153 * x1 +170.46263 * x2 +2159.658;
+      var pred_Y = -4402.58831 * x1 + 45.16752 * x2 + 53537.85546;
+
+      var trustedLastPart = 6240.073;
+      var predictedLastPart = 86822.572;
+      var student = 2.35183518 * Math.log10(this.n /*Magic*/); // Коеф. Стьюдента
+
+      var trustInterval_Left = pred_Y - student * trustedLastPart; //доверительный лев. гр.
+
+      var trustInterval_Right = pred_Y + student * trustedLastPart; //доверительный прав. гр.
+
+      var predictedInterval_Left = pred_Y - student * predictedLastPart; //предсказательный лев. гр.
+
+      var predictedInterval_Right = pred_Y + student * predictedLastPart; //предсказательный прав. гр.
 
       var outputText =
         `ŷ = X1 + X2 + 2159.658
@@ -58,6 +70,16 @@ export default {
 ŷ = -4402.58831 * X1 + 45.16752 * X2 + 53537.85546
 ŷ = ` +
         pred_Y +
+        `
+-------------------------------------------------
+` +
+        trustInterval_Left +
+        " &gt;  TrustedInterval &gt;  " +
+        trustInterval_Right +
+        "\n" +
+        predictedInterval_Left +
+        " &gt;  PredictedInterval &gt;  " +
+        predictedInterval_Right +
         `
 
 -------------------------------------------------
