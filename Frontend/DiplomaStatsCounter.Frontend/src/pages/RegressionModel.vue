@@ -48,9 +48,12 @@ export default {
       return Math.pow(a, b);
     },
     recalculate() {
+      var pow = Math.pow;
+
+      var e = 2.71;
       var x1 = Number(this.x1);
       var x2 = Number(this.x2);
-      var pred_Y = -4402.58831 * x1 + 45.16752 * x2 + 53537.85546;
+      var pred_Y = pow(10, 1.04 + e) + x1 * 0.04 + x2 * 0.25;
 
       var trustedLastPart = 6240.073;
       var predictedLastPart = 86822.572;
@@ -65,9 +68,9 @@ export default {
       var predictedInterval_Right = pred_Y + student * predictedLastPart; //предсказательный прав. гр.
 
       var outputText =
-        `ŷ = X1 + X2 + 2159.658
-ŷ = b1 * X1 + b2 * X2 + a
-ŷ = -4402.58831 * X1 + 45.16752 * X2 + 53537.85546
+        `
+ŷ = b0 + b1 * x1 + b2 * x2 
+ŷ = 10^(1.04 + ε) + x1 * 0.04 + x2 * 0.25
 ŷ = ` +
         pred_Y +
         `
